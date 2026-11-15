@@ -1,7 +1,7 @@
 import { parseEquation } from './equation';
 import { buildMatrix, isMatrixBalanced } from './matrix';
 import { solve } from './solver';
-import type { BalanceResult, BalancedTerm, ChemicalEquation, EquationTerm } from './types';
+import type { BalanceResult, BalancedTerm, EquationTerm } from './types';
 
 
 /** Formats a reaction term using its stoichiometric coefficient. */
@@ -53,4 +53,16 @@ export function balance ( equation: string ) : BalanceResult {
 export function isBalanced ( equation: string ) : boolean {
   const parsed = parseEquation( equation ), matrix = buildMatrix( parsed, true );
   return isMatrixBalanced( matrix );
+}
+
+
+/**
+ * Checks whether a chemical reaction equation is syntactically valid.
+ *
+ * @param equation The chemical reaction equation.
+ * @returns True if the equation and all formulas are valid.
+ */
+export function validate ( equation: string ) : boolean {
+  try { parseEquation( equation ); return true }
+  catch { return false }
 }
