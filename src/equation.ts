@@ -28,3 +28,17 @@ function parseTerm ( value: string ) : EquationTerm {
 
   return { formula, coefficient, composition: parseFormula( formula ) };
 }
+
+/**
+ * Parses one side of a chemical reaction.
+ *
+ * @throws {Error} If the side contains invalid or empty terms.
+ */
+function parseSide ( value: string ) : EquationTerm[] {
+  const terms = value.trim().split( TERM_SEPARATOR_REGEX );
+
+  if ( terms.some( term => ! term.trim() ) )
+    throw new Error( 'Reaction contains an empty term.' );
+
+  return terms.map( parseTerm );
+}
