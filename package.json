@@ -21,5 +21,10 @@
     "dist",
     "README.md",
     "LICENSE"
-  ]
+  ],
+  "devDependencies": {
+    "prettier": "^3.10.1",
+    "rimraf": "^6.1.4",
+    "typescript": "^7.0.2"
+  }
 }
