@@ -31,21 +31,21 @@ export function buildMatrix (
   const elements = ELEMENT_SYMBOLS.filter( el => terms.some( term => el in term.composition.elementCounts ) );
   const includeCharge = terms.some( term => term.composition.charge !== undefined );
 
-  const rows: bigint[][] = elements.map( el => terms.map( ( term, index ) => {
-    const count = term.composition.elementCounts[ el ] || 0;
-    const sign = index < equation.reactants.length ? 1n : -1n;
-    const coefficient = useCoefficients ? BigInt( term.coefficient ) : 1n;
+  const rows: bigint[][] = elements.map( el => terms.map( ( { composition, coefficient }, i ) => {
+    const count = composition.elementCounts[ el ] || 0;
+    const sign = i < equation.reactants.length ? 1n : -1n;
+    const coeff = useCoefficients ? BigInt( coefficient ) : 1n;
 
-    return toInteger( count, el ) * sign * coefficient;
+    return toInteger( count, el ) * sign * coeff;
   } ) );
 
   if ( includeCharge ) {
-    rows.push( terms.map( ( term, i ) => {
-      const charge = toInteger( term.composition.charge || 0, 'Charge' );
+    rows.push( terms.map( ( { composition, coefficient }, i ) => {
+      const charge = toInteger( composition.charge || 0, 'Charge' );
       const sign = i < equation.reactants.length ? 1n : -1n;
-      const coefficient = useCoefficients ? BigInt( term.coefficient ) : 1n;
+      const coeff = useCoefficients ? BigInt( coefficient ) : 1n;
 
-      return charge * sign * coefficient;
+      return charge * sign * coeff;
     } ) );
   }
 
