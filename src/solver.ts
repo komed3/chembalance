@@ -66,4 +66,8 @@ export function solve ( matrix: bigint[][] ) : IntegerSolution {
     const column = pivotColumns[ row ];
     solution[ column ] = negate( rows[ row ][ freeColumn ] );
   }
+
+  // Convert all fractions to integers using a common denominator.
+  const denominator = solution.reduce( ( value, item ) => lcm( value, item.denominator ), 1n );
+  const integers = solution.map( item => item.numerator * ( denominator / item.denominator ) );
 }
