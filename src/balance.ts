@@ -13,3 +13,30 @@ function formatTerm ( term: BalancedTerm ) : string {
 function createTerms ( terms: EquationTerm[], coefficients: number[], offset: number ) : BalancedTerm[] {
   return terms.map( ( { formula }, i ) => ( { formula, coefficient: coefficients[ offset + i ] } ) );
 }
+
+
+/**
+ * Balances a chemical reaction equation.
+ *
+ * Existing stoichiometric coefficients are recalculated.
+ *
+ * @param equation The chemical reaction equation.
+ * @returns The balanced equation and its coefficients.
+ * @throws {Error} If the equation cannot be balanced.
+ */
+export function balance ( equation: string ) : BalanceResult {
+  const parsed = parseEquation( equation ), matrix = buildMatrix( parsed );
+  const coefficients = solve( matrix );
+
+  const reactants = createTerms( parsed.reactants, coefficients, 0 );
+  const products = createTerms( parsed.products, coefficients, parsed.reactants.length );
+
+  return {
+    equation: [
+      reactants.map( formatTerm ).join( ' + ' ),
+      products.map( formatTerm ).join( ' + ' )
+    ].join( ' -> ' ),
+    coefficients, reactants, products,
+    balanced: true
+  };
+}
