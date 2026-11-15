@@ -1,4 +1,4 @@
-import { fraction, divide, multiply, subtract, negate, lcm, gcd } from './rational';
+import { divide, fraction, gcd, lcm, multiply, negate, subtract } from './rational';
 import type { Fraction, IntegerSolution } from './types';
 
 
@@ -40,9 +40,9 @@ export function solve ( matrix: bigint[][] ) : IntegerSolution {
       const factor = rows[ row ][ column ];
       if ( factor.numerator === 0n ) continue;
 
-      rows[ row ] = rows[ row ].map( ( value, index ) => subtract(
-        value, multiply( factor, rows[ pivotRow ][ index ] )
-      ) );
+      rows[ row ] = rows[ row ].map( ( v, i ) =>
+        subtract( v, multiply( factor, rows[ pivotRow ][ i ] ) )
+      );
     }
 
     pivotColumns.push( column );
@@ -68,10 +68,26 @@ export function solve ( matrix: bigint[][] ) : IntegerSolution {
   }
 
   // Convert all fractions to integers using a common denominator.
-  const denominator = solution.reduce( ( value, item ) => lcm( value, item.denominator ), 1n );
+  const denominator = solution.reduce( ( v, item ) => lcm( v, item.denominator ), 1n );
   const integers = solution.map( item => item.numerator * ( denominator / item.denominator ) );
 
   // Reduce the integer vector by its greatest common divisor.
   const divisor = integers.reduce( gcd );
   const reduced = integers.map( v => v / divisor );
+
+  // A valid balancing solution must contain positive coefficients only.
+  const hasPos = reduced.some( v => v > 0n ), hasNeg = reduced.some( v => v < 0n );
+  const hasZero = reduced.some( v => v === 0n );
+
+  if ( hasZero || ( hasPos && hasNeg ) ) throw new Error( 'No strictly positive balancing solution exists.' );
+  const normalized = hasNeg ? reduced.map( v => -v ) : reduced;
+
+  return normalized.map( v => {
+    const result = Number( v );
+
+    if ( ! Number.isSafeInteger( result ) )
+      throw new Error( 'Balancing coefficient exceeds the safe integer range.' );
+
+    return result;
+  } );
 }
