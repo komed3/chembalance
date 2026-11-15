@@ -7,6 +7,10 @@ export interface Fraction {
   denominator: bigint;
 }
 
+/** Represents a non-trivial integer solution vector. */
+export type IntegerSolution = number[];
+
+
 /** A parsed term of a chemical reaction. */
 export interface EquationTerm {
   formula: string;
