@@ -23,10 +23,7 @@ function toInteger ( value: number, label: string ) : bigint {
  * @param useCoefficients Whether existing coefficients should be applied.
  * @returns The stoichiometric matrix.
  */
-export function buildMatrix (
-  equation: ChemicalEquation,
-  useCoefficients = false
-) : bigint[][] {
+export function buildMatrix ( equation: ChemicalEquation, useCoefficients = false ) : bigint[][] {
   const terms = [ ...equation.reactants, ...equation.products ];
   const elements = ELEMENT_SYMBOLS.filter( el => terms.some( term => el in term.composition.elementCounts ) );
   const includeCharge = terms.some( term => term.composition.charge !== undefined );
