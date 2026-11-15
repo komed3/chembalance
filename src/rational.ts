@@ -9,3 +9,10 @@ export function gcd ( a: bigint, b: bigint ) : bigint {
 
   return a;
 }
+
+
+/** Calculates the least common multiple. */
+export function lcm ( a: bigint, b: bigint ) : bigint {
+  if ( a === 0n || b === 0n ) return 0n;
+  return ( a / gcd( a, b ) ) * b;
+}
