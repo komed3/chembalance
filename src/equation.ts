@@ -1,4 +1,4 @@
-import ChemParse, { parse as parseFormula } from 'chemparse';
+import { parse as parseFormula } from 'chemparse';
 import type { ChemicalEquation, EquationTerm } from './types';
 
 
@@ -41,4 +41,29 @@ function parseSide ( value: string ) : EquationTerm[] {
     throw new Error( 'Reaction contains an empty term.' );
 
   return terms.map( parseTerm );
+}
+
+
+/**
+ * Parses a chemical reaction equation.
+ *
+ * @param equation The chemical reaction equation.
+ * @returns The parsed reactants and products.
+ * @throws {TypeError} If the equation is not a string.
+ * @throws {Error} If the equation is invalid.
+ */
+export function parseEquation ( equation: string ) : ChemicalEquation {
+  if ( typeof equation !== 'string' ) throw new TypeError( 'Equation must be a string.' );
+
+  const arrows = equation.match( ARROW_REGEX );
+  if ( ! arrows || arrows.length !== 1 )
+    throw new Error( 'Equation must contain exactly one reaction arrow.' );
+
+  const pos = equation.search( ARROW_REGEX ), arrow = arrows[ 0 ];
+  const left = equation.slice( 0, pos ), right = equation.slice( pos + arrow.length );
+
+  if ( ! left.trim() || ! right.trim() )
+    throw new Error( 'Both sides of the equation must contain at least one term.' );
+
+  return { reactants: parseSide( left ), products: parseSide( right ) };
 }
