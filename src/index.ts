@@ -1,8 +1,19 @@
-import { parseEquation } from './equation';
 import { balance, isBalanced, validate } from './balance';
+import { parseEquation } from './equation';
 
 
-export type { EquationTerm, ChemicalEquation, BalancedTerm, BalanceResult } from './types';
+export type { BalancedTerm, BalanceResult, ChemicalEquation, EquationTerm } from './types';
+export { balance, isBalanced, parseEquation as parse, validate };
 
-export { parseEquation as parse };
-export { balance, isBalanced, validate };
+
+/** Provides a static API for balancing chemical equations. */
+export default class ChemBalance {
+  /** @see parseEquation */
+  public static readonly parse = parseEquation;
+  /** @see balance */
+  public static readonly balance = balance;
+  /** @see isBalanced */
+  public static readonly isBalanced = isBalanced;
+  /** @see validate */
+  public static readonly validate = validate;
+}
