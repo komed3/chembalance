@@ -22,6 +22,9 @@
     "README.md",
     "LICENSE"
   ],
+  "dependencies": {
+    "chemparse": "^1.1.0"
+  },
   "devDependencies": {
     "prettier": "^3.10.1",
     "rimraf": "^6.1.4",
