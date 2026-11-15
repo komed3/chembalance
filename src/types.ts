@@ -19,3 +19,12 @@ export interface BalancedTerm {
   formula: string;
   coefficient: number;
 }
+
+/** Result of balancing a chemical reaction. */
+export interface BalanceResult {
+  equation: string;
+  coefficients: number[];
+  reactants: BalancedTerm[];
+  products: BalancedTerm[];
+  balanced: true;
+}
