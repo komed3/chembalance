@@ -1,6 +1,12 @@
 import type { ChemParseResult } from 'chemparse';
 
 
+/** An exact rational number. */
+export interface Fraction {
+  numerator: bigint;
+  denominator: bigint;
+}
+
 /** A parsed term of a chemical reaction. */
 export interface EquationTerm {
   formula: string;
