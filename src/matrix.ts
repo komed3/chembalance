@@ -51,3 +51,8 @@ export function buildMatrix (
 
   return rows;
 }
+
+/** Checks whether every row of a stoichiometric matrix sums to zero. */
+export function isMatrixBalanced ( matrix: bigint[][] ) : boolean {
+  return matrix.every( row => row.reduce( ( sum, value ) => sum + value, 0n ) === 0n );
+}
