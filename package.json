@@ -9,5 +9,17 @@
     "url": "https://komed3.de"
   },
   "homepage": "https://github.com/komed3/chembalance",
-  "keywords": []
+  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/komed3/chembalance.git"
+  },
+  "bugs": {
+    "url": "https://github.com/komed3/chembalance/issues"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ]
 }
