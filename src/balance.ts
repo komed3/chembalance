@@ -40,3 +40,17 @@ export function balance ( equation: string ) : BalanceResult {
     balanced: true
   };
 }
+
+
+/**
+ * Checks whether a chemical reaction equation is balanced.
+ *
+ * Existing stoichiometric coefficients are taken into account.
+ *
+ * @param equation The chemical reaction equation.
+ * @returns True if all elements and charges are balanced.
+ */
+export function isBalanced ( equation: string ) : boolean {
+  const parsed = parseEquation( equation ), matrix = buildMatrix( parsed, true );
+  return isMatrixBalanced( matrix );
+}
