@@ -55,4 +55,15 @@ export function solve ( matrix: bigint[][] ) : IntegerSolution {
 
   if ( freeColumns.length === 0 ) throw new Error( 'The equation has no non-trivial balancing solution.' );
   if ( freeColumns.length > 1 ) throw new Error( 'The equation has multiple independent balancing solutions.' );
+
+  // Set the only free variable to one.
+  const solution: Fraction[] = Array.from( { length: columns }, () => fraction( 0n ) );
+
+  const freeColumn = freeColumns[ 0 ];
+  solution[ freeColumn ] = fraction( 1n );
+
+  for ( let row = 0; row < pivotColumns.length; row++ ) {
+    const column = pivotColumns[ row ];
+    solution[ column ] = negate( rows[ row ][ freeColumn ] );
+  }
 }
