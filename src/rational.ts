@@ -30,3 +30,33 @@ export function fraction ( numerator: bigint, denominator = 1n ) : Fraction {
 
   return { numerator: numerator / divisor, denominator: denominator / divisor };
 }
+
+
+/** Adds two fractions. */
+export function add ( a: Fraction, b: Fraction ) : Fraction {
+  return fraction( a.numerator * b.denominator + b.numerator * a.denominator, a.denominator * b.denominator );
+}
+
+
+/** Subtracts two fractions. */
+export function subtract ( a: Fraction, b: Fraction ) : Fraction {
+  return fraction( a.numerator * b.denominator - b.numerator * a.denominator, a.denominator * b.denominator );
+}
+
+
+/** Multiplies two fractions. */
+export function multiply ( a: Fraction, b: Fraction ) : Fraction {
+  return fraction( a.numerator * b.numerator, a.denominator * b.denominator );
+}
+
+
+/** Divides two fractions. */
+export function divide ( a: Fraction, b: Fraction ) : Fraction {
+  return fraction( a.numerator * b.denominator, a.denominator * b.numerator );
+}
+
+
+/** Negates a fraction. */
+export function negate ( value: Fraction ) : Fraction {
+  return { numerator: -value.numerator, denominator: value.denominator };
+}
