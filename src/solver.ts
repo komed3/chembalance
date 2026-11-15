@@ -48,4 +48,11 @@ export function solve ( matrix: bigint[][] ) : IntegerSolution {
     pivotColumns.push( column );
     pivotRow++;
   }
+
+  const freeColumns = Array.from( { length: columns }, ( _, i ) => i ).filter(
+    col => ! pivotColumns.includes( col )
+  );
+
+  if ( freeColumns.length === 0 ) throw new Error( 'The equation has no non-trivial balancing solution.' );
+  if ( freeColumns.length > 1 ) throw new Error( 'The equation has multiple independent balancing solutions.' );
 }
