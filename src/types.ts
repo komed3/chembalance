@@ -7,3 +7,15 @@ export interface EquationTerm {
   coefficient: number;
   composition: ChemParseResult;
 }
+
+/** A parsed chemical reaction equation. */
+export interface ChemicalEquation {
+  reactants: EquationTerm[];
+  products: EquationTerm[];
+}
+
+/** A term of a balanced chemical reaction. */
+export interface BalancedTerm {
+  formula: string;
+  coefficient: number;
+}
