@@ -34,6 +34,14 @@
   ],
   "scripts": {
     "clean": "rimraf dist",
+    "build:cjs": "tsc -p tsconfig.cjs.json",
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "build:dts": "tsc -p tsconfig.dts.json",
+    "build:all": "npm run build:cjs && npm run build:esm && npm run build:dts",
+    "format": "prettier --ignore-path \"\" --write \"./dist/**/*\" --log-level warn",
+    "build": "npm run clean && npm run build:all && npm run format",
+    "prepublishOnly": "npm run build",
+    "test": "npm run build && node --test",
     "lint": "tsc --noEmit"
   },
   "dependencies": {
