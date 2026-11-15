@@ -22,6 +22,10 @@
     "README.md",
     "LICENSE"
   ],
+  "scripts": {
+    "clean": "rimraf dist",
+    "lint": "tsc --noEmit"
+  },
   "dependencies": {
     "chemparse": "^1.1.0"
   },
