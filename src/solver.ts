@@ -12,4 +12,13 @@ import type { Fraction, IntegerSolution } from './types';
  * @returns The smallest positive integer solution.
  * @throws {Error} If no unique positive balancing ratio exists.
  */
-export function solve ( matrix: bigint[][] ) : IntegerSolution {}
+export function solve ( matrix: bigint[][] ) : IntegerSolution {
+  if ( ! matrix.length || ! matrix[ 0 ].length ) throw new Error( 'Matrix must not be empty.' );
+
+  const columns = matrix[ 0 ].length;
+  if ( matrix.some( row => row.length !== columns ) ) throw new Error( 'Matrix must be rectangular.' );
+
+  const rows: Fraction[][] = matrix.map( row => row.map( v => fraction( v ) ) );
+  const pivotColumns: number[] = [];
+  let pivotRow = 0;
+}
