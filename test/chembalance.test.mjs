@@ -252,6 +252,14 @@ test( 'reaction media', async t => {
     assert.equal( isBalanced( result.equation ), true );
   } );
 
+  await t.test( 'supports all search profiles', () => {
+    for ( const search of [ 'fast', 'balanced', 'thorough' ] ) {
+      const result = balance( 'MnO4^- + Fe^2+ -> Mn^2+ + Fe^3+', { medium: 'acidic', search } );
+
+      assert.equal( isBalanced( result.equation ), true );
+    }
+  } );
+
   await t.test( 'does not add auxiliary species unnecessarily', () => {
     const result = balance( 'H2 + O2 -> H2O', { medium: 'acidic' } );
 
@@ -260,6 +268,10 @@ test( 'reaction media', async t => {
 
   await t.test( 'rejects unsupported reaction media', () => {
     assert.throws( () => balance( 'H2 + O2 -> H2O', { medium: 'neutral' } ), /Reaction medium/ );
+  } );
+
+  await t.test( 'rejects unsupported search profiles', () => {
+    assert.throws( () => balance( 'H2 + O2 -> H2O', { search: 'unlimited' } ), /Search profile/ );
   } );
 } );
 
