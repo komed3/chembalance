@@ -85,17 +85,22 @@ export function balance ( equation: string, options: BalanceOptions = {} ) : Bal
 
   const species = createAuxiliaryTerms( medium );
   let best: { equation: ChemicalEquation; coefficients: number[] } | undefined;
+  let searchLimitExceeded = false;
 
   for ( const candidate of auxiliaryEquations( parsed, species ) ) {
     try {
       const coefficients = solve( buildMatrix( candidate ) );
       if ( ! best || isBetter( coefficients, best.coefficients ) ) best = { equation: candidate, coefficients };
     } catch ( err ) {
-      if ( err instanceof Error && err.message === 'Balancing search limit exceeded.' ) throw err;
+      if ( err instanceof Error && err.message === 'Balancing search limit exceeded.' )
+        searchLimitExceeded = true;
     }
   }
 
-  if ( ! best ) throw new Error( 'No positive balancing solution exists for the selected reaction medium.' );
+  if ( ! best ) {
+    if ( searchLimitExceeded ) throw new Error( 'Balancing search limit exceeded.' );
+    throw new Error( 'No positive balancing solution exists for the selected reaction medium.' );
+  }
 
   const reactants = createTerms( best.equation.reactants, best.coefficients, 0 );
   const products = createTerms( best.equation.products, best.coefficients, best.equation.reactants.length );
