@@ -3,8 +3,8 @@ import { parseEquation } from './equation';
 
 
 export type {
-  BalancedTerm, BalanceOptions, BalanceResult, ChemicalEquation,
-  EquationTerm, Fraction, IntegerSolution, ReactionMedium
+  BalancedTerm, BalanceOptions, BalanceResult, ChemicalEquation, EquationTerm,
+  Fraction, IntegerSolution, ReactionMedium, SearchProfile
 } from './types';
 
 export { balance, isBalanced, parseEquation as parse, validate };
