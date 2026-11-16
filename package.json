@@ -8,7 +8,7 @@
     "email": "webmaster@komed3.de",
     "url": "https://komed3.de"
   },
-  "homepage": "https://github.com/komed3/chembalance",
+  "homepage": "https://komed3.github.io/chemistry",
   "keywords": [
     "chemistry",
     "chemical-equations",
@@ -35,7 +35,6 @@
   "types": "./dist/types/index.d.ts",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
-  "default": "./dist/esm/index.js",
   "exports": {
     ".": {
       "types": "./dist/types/index.d.ts",
