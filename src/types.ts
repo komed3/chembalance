@@ -10,12 +10,20 @@ export interface Fraction {
 /** Represents a non-trivial integer solution vector. */
 export type IntegerSolution = number[];
 
+/** Supported reaction media. */
+export type ReactionMedium = 'acidic' | 'basic';
+
+/** Options for balancing a chemical equation. */
+export interface BalanceOptions {
+  medium?: ReactionMedium;
+}
 
 /** A parsed term of a chemical reaction. */
 export interface EquationTerm {
   formula: string;
   coefficient: number;
   composition: ChemParseResult;
+  auxiliary?: boolean;
 }
 
 /** A parsed chemical reaction equation. */
