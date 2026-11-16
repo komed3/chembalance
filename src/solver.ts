@@ -2,15 +2,86 @@ import { divide, fraction, gcd, lcm, multiply, negate, subtract } from './ration
 import type { Fraction, IntegerSolution } from './types';
 
 
+/** Maximum number of nodes to explore during the search for a positive integer solution. */
+const MAX_SEARCH_NODES = 2_000_000;
+
+/** Maximum sum of coefficients to consider during the search for a positive integer solution. */
+const MAX_COEFFICIENT_SUM = 10_000;
+
+
+/** Converts a rational solution into its smallest integer representation. */
+function toIntegers ( solution: Fraction[] ) : bigint[] {
+  const denominator = solution.reduce( ( v, item ) => lcm( v, item.denominator ), 1n );
+  const integers = solution.map( item => item.numerator * ( denominator / item.denominator ) );
+  const divisor = integers.reduce( gcd );
+
+  return integers.map( v => v / divisor );
+}
+
+
+/** Converts a positive integer solution into safe JavaScript numbers. */
+function toNumbers ( values: bigint[] ) : IntegerSolution {
+  return values.map( v => {
+    const result = Number( v );
+
+    if ( ! Number.isSafeInteger( result ) )
+      throw new Error( 'Balancing coefficient exceeds the safe integer range.' );
+
+    return result;
+  } );
+}
+
+
+/** Checks whether a candidate satisfies every matrix row. */
+function isSolution ( matrix: bigint[][], values: bigint[] ) : boolean {
+  return matrix.every( row => row.reduce( ( sum, v, i ) => sum + v * values[ i ], 0n ) === 0n );
+}
+
+
+/** Finds the smallest positive integer solution for a multi-dimensional nullspace. */
+function searchSolution ( matrix: bigint[][], columns: number ) : bigint[] {
+  let nodes = 0;
+
+  for ( let sum = columns; sum <= MAX_COEFFICIENT_SUM; sum++ ) {
+    const values = Array.from( { length: columns }, () => 1n );
+    let result: bigint[] | undefined;
+
+    function search ( i: number, remaining: number ) : boolean {
+      if ( ++nodes > MAX_SEARCH_NODES ) throw new Error( 'Balancing search limit exceeded.' );
+
+      if ( i === columns - 1 ) {
+        if ( remaining < 1 ) return false;
+
+        values[ i ] = BigInt( remaining );
+        if ( ! isSolution( matrix, values ) ) return false;
+
+        result = [ ...values ];
+        return true;
+      }
+
+      for ( let value = 1; value <= remaining - ( columns - i - 1 ); value++ ) {
+        values[ i ] = BigInt( value );
+        if ( search( i + 1, remaining - value ) ) return true;
+      }
+
+      return false;
+    }
+
+    if ( search( 0, sum ) ) return result!;
+  }
+
+  throw new Error( 'No positive integer balancing solution found within the search limit.' );
+}
+
+
 /**
  * Solves a homogeneous system of linear equations.
  *
- * The current implementation supports systems with exactly one
- * free variable and returns the smallest positive integer solution.
+ * Returns the positive integer solution with the smallest coefficient sum.
  *
  * @param matrix The stoichiometric matrix.
  * @returns The smallest positive integer solution.
- * @throws {Error} If no unique positive balancing ratio exists.
+ * @throws {Error} If no positive balancing solution exists or the search limit is exceeded.
  */
 export function solve ( matrix: bigint[][] ) : IntegerSolution {
   if ( ! matrix.length || ! matrix[ 0 ].length ) throw new Error( 'Matrix must not be empty.' );
@@ -54,40 +125,22 @@ export function solve ( matrix: bigint[][] ) : IntegerSolution {
   );
 
   if ( freeColumns.length === 0 ) throw new Error( 'The equation has no non-trivial balancing solution.' );
-  if ( freeColumns.length > 1 ) throw new Error( 'The equation has multiple independent balancing solutions.' );
 
-  // Set the only free variable to one.
-  const solution: Fraction[] = Array.from( { length: columns }, () => fraction( 0n ) );
+  if ( freeColumns.length === 1 ) {
+    const solution: Fraction[] = Array.from( { length: columns }, () => fraction( 0n ) );
+    const freeColumn = freeColumns[ 0 ];
 
-  const freeColumn = freeColumns[ 0 ];
-  solution[ freeColumn ] = fraction( 1n );
+    solution[ freeColumn ] = fraction( 1n );
 
-  for ( let row = 0; row < pivotColumns.length; row++ ) {
-    const column = pivotColumns[ row ];
-    solution[ column ] = negate( rows[ row ][ freeColumn ] );
+    for ( let row = 0; row < pivotColumns.length; row++ )
+      solution[ pivotColumns[ row ] ] = negate( rows[ row ][ freeColumn ] );
+
+    const integers = toIntegers( solution ), hasZero = integers.some( v => v === 0n );
+    const hasPos = integers.some( v => v > 0n ), hasNeg = integers.some( v => v < 0n );
+
+    if ( hasZero || ( hasPos && hasNeg ) ) throw new Error( 'No strictly positive balancing solution exists.' );
+    return toNumbers( hasNeg ? integers.map( value => -value ) : integers );
   }
 
-  // Convert all fractions to integers using a common denominator.
-  const denominator = solution.reduce( ( v, item ) => lcm( v, item.denominator ), 1n );
-  const integers = solution.map( item => item.numerator * ( denominator / item.denominator ) );
-
-  // Reduce the integer vector by its greatest common divisor.
-  const divisor = integers.reduce( gcd );
-  const reduced = integers.map( v => v / divisor );
-
-  // A valid balancing solution must contain positive coefficients only.
-  const hasPos = reduced.some( v => v > 0n ), hasNeg = reduced.some( v => v < 0n );
-  const hasZero = reduced.some( v => v === 0n );
-
-  if ( hasZero || ( hasPos && hasNeg ) ) throw new Error( 'No strictly positive balancing solution exists.' );
-  const normalized = hasNeg ? reduced.map( v => -v ) : reduced;
-
-  return normalized.map( v => {
-    const result = Number( v );
-
-    if ( ! Number.isSafeInteger( result ) )
-      throw new Error( 'Balancing coefficient exceeds the safe integer range.' );
-
-    return result;
-  } );
+  return toNumbers( searchSolution( matrix, columns ) );
 }
