@@ -19,32 +19,31 @@ function toInteger ( value: number, label: string ) : bigint {
  * Rows represent elements and ionic charge.
  * Columns represent reaction terms.
  *
- * @param equation The parsed chemical equation.
+ * @param reactants The parsed reactants.
+ * @param products The parsed products.
  * @param useCoefficients Whether existing coefficients should be applied.
  * @returns The stoichiometric matrix.
  */
-export function buildMatrix ( equation: ChemicalEquation, useCoefficients = false ) : bigint[][] {
-  const terms = [ ...equation.reactants, ...equation.products ];
-  const elements = ELEMENT_SYMBOLS.filter( el => terms.some( term => el in term.composition.elementCounts ) );
-  const includeCharge = terms.some( term => term.composition.charge !== undefined );
+export function buildMatrix ( { reactants, products }: ChemicalEquation, useCoefficients = false ) : bigint[][] {
+  const terms = [ ...reactants, ...products ];
 
-  const rows: bigint[][] = elements.map( el => terms.map( ( { composition, coefficient }, i ) => {
-    const count = composition.elementCounts[ el ] || 0;
-    const sign = i < equation.reactants.length ? 1n : -1n;
-    const coeff = useCoefficients ? BigInt( coefficient ) : 1n;
+  const factors = terms.map( ( { coefficient }, i ) =>
+    ( i < reactants.length ? 1n : -1n ) * ( useCoefficients ? BigInt( coefficient ) : 1n )
+  );
 
-    return toInteger( count, el ) * sign * coeff;
-  } ) );
+  const elements = ELEMENT_SYMBOLS.filter( el => terms.some( ( { composition } ) =>
+    el in composition.elementCounts
+  ) );
 
-  if ( includeCharge ) {
-    rows.push( terms.map( ( { composition, coefficient }, i ) => {
-      const charge = toInteger( composition.charge || 0, 'Charge' );
-      const sign = i < equation.reactants.length ? 1n : -1n;
-      const coeff = useCoefficients ? BigInt( coefficient ) : 1n;
+  const includeCharge = terms.some( ( { composition } ) => composition.charge !== undefined );
 
-      return charge * sign * coeff;
-    } ) );
-  }
+  const rows = elements.map( el => terms.map( ( { composition }, i ) =>
+    toInteger( composition.elementCounts[ el ] || 0, el ) * factors[ i ]
+  ) );
+
+  if ( includeCharge ) rows.push( terms.map( ( { composition }, i ) =>
+    toInteger( composition.charge || 0, 'Charge' ) * factors[ i ]
+  ) );
 
   return rows;
 }
