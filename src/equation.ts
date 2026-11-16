@@ -11,19 +11,6 @@ const TERM_SEPARATOR_REGEX = /\s+\+\s+/;
 /** Matches an optional leading stoichiometric coefficient. */
 const COEFFICIENT_REGEX = /^(\d+)\s*(.+)$/;
 
-/** Matches supported electron notation. */
-const ELECTRON_REGEX = /^e(?:\^?([+-])(?:1)?|([⁺⁻]))$/iu;
-
-
-/** Parses a chemical species, including electrons. */
-function parseComposition ( formula: string ) {
-  const normalized = formula.replace( /[−﹣－]/g, '-' ).replace( /⁻¹$/u, '-1' )
-    .replace( /⁻/gu, '-' ).replace( /⁺/gu, '+' );
-
-  if ( ELECTRON_REGEX.test( normalized ) ) return { elementCounts: {}, charge: -1 };
-  return parseFormula( formula );
-}
-
 
 /**
  * Parses a reaction term into its coefficient and chemical formula.
@@ -32,14 +19,18 @@ function parseComposition ( formula: string ) {
  */
 function parseTerm ( value: string ) : EquationTerm {
   const term = value.trim(), match = term.match( COEFFICIENT_REGEX );
-
   const coefficient = match ? Number( match[ 1 ] ) : 1;
   const formula = match ? match[ 2 ].trim() : term;
 
   if ( ! Number.isSafeInteger( coefficient ) || coefficient <= 0 )
     throw new Error( `Invalid stoichiometric coefficient in "${ term }".` );
 
-  return { formula, coefficient, composition: parseComposition( formula ) };
+  const composition = parseFormula( formula );
+
+  if ( composition.particleCounts && Object.keys( composition.particleCounts ).some( p => p !== 'e' ) )
+    throw new Error( `Unsupported particle in reaction term "${ formula }".` );
+
+  return { formula, coefficient, composition };
 }
 
 /**
