@@ -5,8 +5,8 @@ import type { BalanceOptions, BalanceResult, BalancedTerm, ChemicalEquation, Equ
 
 
 /** Formats a reaction term using its stoichiometric coefficient. */
-function formatTerm ( term: BalancedTerm ) : string {
-  return term.coefficient === 1 ? term.formula : `${ term.coefficient } ${ term.formula }`;
+function formatTerm ( { formula, coefficient }: BalancedTerm ) : string {
+  return coefficient === 1 ? formula : `${ coefficient } ${ formula }`;
 }
 
 /** Converts a parsed equation and its coefficients into balanced terms. */
@@ -14,34 +14,19 @@ function createTerms ( terms: EquationTerm[], coefficients: number[], offset: nu
   return terms.map( ( { formula }, i ) => ( { formula, coefficient: coefficients[ offset + i ] } ) );
 }
 
-
 /** Creates optional species for the selected reaction medium. */
 function createAuxiliaryTerms ( medium: BalanceOptions[ 'medium' ] ) : EquationTerm[] {
-  if ( medium === 'acidic' ) return [
-    ...parseEquation( 'H2O -> H2O' ).reactants.map( term => ( { ...term, auxiliary: true } ) ),
-    ...parseEquation( 'H^+ -> H^+' ).reactants.map( term => ( { ...term, auxiliary: true } ) ),
-    { ...parseEquation( 'e^- -> e^-' ).reactants[ 0 ], auxiliary: true }
-  ];
+  const formulas = medium === 'acidic' ? [ 'H2O', 'H^+', 'e^-' ] : medium === 'basic' ? [ 'H2O', 'OH^-', 'e^-' ] : [];
+  if ( ! formulas.length ) return [];
 
-  if ( medium === 'basic' ) return [
-    ...parseEquation( 'H2O -> H2O' ).reactants.map( term => ( { ...term, auxiliary: true } ) ),
-    ...parseEquation( 'OH^- -> OH^-' ).reactants.map( term => ( { ...term, auxiliary: true } ) ),
-    { ...parseEquation( 'e^- -> e^-' ).reactants[ 0 ], auxiliary: true }
-  ];
-
-  return [];
+  return parseEquation( `${ formulas.join( ' + ' ) } -> ${ formulas.join( ' + ' ) }` )
+    .reactants.map( term => ( { ...term, auxiliary: true } ) );
 }
-
-
-/** Returns whether an equation already contains a species. */
-function hasSpecies ( equation: ChemicalEquation, formula: string ) : boolean {
-  return [ ...equation.reactants, ...equation.products ].some( term => term.formula === formula );
-}
-
 
 /** Generates all combinations of optional species placements. */
-function* auxiliaryEquations ( equation: ChemicalEquation, species: EquationTerm[] ) {
-  const candidates = species.filter( ( { formula } ) => ! hasSpecies( equation, formula ) );
+function* auxiliaryEquations ( { reactants, products }: ChemicalEquation, species: EquationTerm[] ) {
+  const existing = new Set( [ ...reactants, ...products ].map( ( { formula } ) => formula ) );
+  const candidates = species.filter( ( { formula } ) => ! existing.has( formula ) );
 
   function insert ( terms: EquationTerm[], term: EquationTerm ) : EquationTerm[] {
     const auxiliaryCount = terms.filter( ( { auxiliary } ) => auxiliary ).length;
@@ -50,59 +35,54 @@ function* auxiliaryEquations ( equation: ChemicalEquation, species: EquationTerm
     return [ ...terms.slice( 0, i ), term, ...terms.slice( i ) ];
   }
 
-  function* generate ( i: number, reactants: EquationTerm[], products: EquationTerm[] ) : Generator< ChemicalEquation > {
-    if ( i === candidates.length ) { yield { reactants, products }; return }
-    yield* generate( i + 1, reactants, products );
+  function* generate ( i: number, r: EquationTerm[], p: EquationTerm[] ) : Generator< ChemicalEquation > {
+    if ( i === candidates.length ) { yield { reactants: r, products: p }; return }
+    yield* generate( i + 1, r, p );
 
     const term = candidates[ i ];
-    yield* generate( i + 1, insert( reactants, term ), products );
-    yield* generate( i + 1, reactants, insert( products, term ) );
+    yield* generate( i + 1, insert( r, term ), p );
+    yield* generate( i + 1, r, insert( p, term ) );
   }
 
-  yield* generate( 0, equation.reactants, equation.products );
+  yield* generate( 0, reactants, products );
 }
 
+/** Counts auxiliary species and electrons in a reaction equation. */
+function countAuxiliaryTerms ( { reactants, products }: ChemicalEquation ) : { terms: number; electrons: number } {
+  const counts = { terms: 0, electrons: 0 };
 
-/** Counts auxiliary electrons in a reaction equation. */
-function countAuxiliaryElectrons ( { reactants, products }: ChemicalEquation ) : number {
-  return [ ...reactants, ...products ].filter( ( { auxiliary, composition } ) =>
-    auxiliary && composition.particleCounts?.e !== undefined
-  ).length;
+  for ( const { auxiliary, composition } of [ ...reactants, ...products ] ) {
+    if ( ! auxiliary ) continue;
+
+    counts.terms++;
+    if ( composition.particleCounts?.e !== undefined ) counts.electrons++;
+  }
+
+  return counts;
 }
-
-
-/** Counts auxiliary species in a reaction equation. */
-function countAuxiliaryTerms ( { reactants, products }: ChemicalEquation ) : number {
-  return [ ...reactants, ...products ].filter( ( { auxiliary } ) => auxiliary ).length;
-}
-
 
 /** Compares solutions by auxiliary species, coefficient sum and lexicographically. */
 function isBetter (
-  current: { equation: ChemicalEquation; coefficients: number[] },
-  best: { equation: ChemicalEquation; coefficients: number[] }
+  { equation: currentEquation, coefficients: currentCoefficients }: { equation: ChemicalEquation; coefficients: number[] },
+  { equation: bestEquation, coefficients: bestCoefficients }: { equation: ChemicalEquation; coefficients: number[] }
 ) : boolean {
-  const electrons = countAuxiliaryElectrons( current.equation );
-  const bestElectrons = countAuxiliaryElectrons( best.equation );
+  const currentCounts = countAuxiliaryTerms( currentEquation );
+  const bestCounts = countAuxiliaryTerms( bestEquation );
 
-  if ( electrons !== bestElectrons ) return electrons < bestElectrons;
+  if ( currentCounts.electrons !== bestCounts.electrons ) return currentCounts.electrons < bestCounts.electrons;
+  if ( currentCounts.terms !== bestCounts.terms ) return currentCounts.terms < bestCounts.terms;
 
-  const auxiliaries = countAuxiliaryTerms( current.equation );
-  const bestAuxiliaries = countAuxiliaryTerms( best.equation );
-
-  if ( auxiliaries !== bestAuxiliaries ) return auxiliaries < bestAuxiliaries;
-
-  const sum = current.coefficients.reduce( ( total, v ) => total + v, 0 );
-  const bestSum = best.coefficients.reduce( ( total, v ) => total + v, 0 );
+  const sum = currentCoefficients.reduce( ( total, v ) => total + v, 0 );
+  const bestSum = bestCoefficients.reduce( ( total, v ) => total + v, 0 );
 
   if ( sum !== bestSum ) return sum < bestSum;
 
-  for ( let i = 0; i < Math.min( current.coefficients.length, best.coefficients.length ); i++ ) {
-    if ( current.coefficients[ i ] !== best.coefficients[ i ] )
-      return current.coefficients[ i ] < best.coefficients[ i ];
+  for ( let i = 0; i < Math.min( currentCoefficients.length, bestCoefficients.length ); i++ ) {
+    if ( currentCoefficients[ i ] !== bestCoefficients[ i ] )
+      return currentCoefficients[ i ] < bestCoefficients[ i ];
   }
 
-  return current.coefficients.length < best.coefficients.length;
+  return currentCoefficients.length < bestCoefficients.length;
 }
 
 
