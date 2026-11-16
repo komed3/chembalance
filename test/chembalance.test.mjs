@@ -162,3 +162,33 @@ test( 'isBalanced', async t => {
     assert.equal( isBalanced( 'H2 + O2 -> 2 H2O' ), false );
   } );
 } );
+
+
+test( 'validate', async t => {
+  await t.test( 'accepts syntactically valid equations', () => {
+    assert.equal( validate( 'H2 + O2 -> H2O' ), true );
+    assert.equal( validate( '4 Fe + 3 O2 -> 2 Fe2O3' ), true );
+    assert.equal( validate( 'H^+ + Cl^- -> HCl' ), true );
+  } );
+
+  await t.test( 'does not require an equation to be balanced', () => {
+    assert.equal( validate( 'H2 + O2 -> H2O' ), true );
+    assert.equal( validate( 'Fe + O2 -> Fe2O3' ), true );
+  } );
+
+  await t.test( 'rejects invalid equations', () => {
+    const invalid = [
+      '', '   ', 'H2 + O2', '-> H2O', 'H2 ->', 'H2 -> H2 -> H2', 'H2 +  + O2 -> H2O',
+      'H2 + O2 -> H2O + ', '0 H2 + O2 -> H2O', '9007199254740992 H2 -> H2', 'Xx + O2 -> XxO2'
+    ];
+
+    for ( const equation of invalid ) assert.equal( validate( equation ), false, equation );
+  } );
+
+  await t.test( 'rejects non-string input', () => {
+    assert.equal( validate( null ), false );
+    assert.equal( validate( undefined ), false );
+    assert.equal( validate( 123 ), false );
+    assert.equal( validate( {} ), false );
+  } );
+} );
