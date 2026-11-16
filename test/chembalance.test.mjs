@@ -192,3 +192,48 @@ test( 'validate', async t => {
     assert.equal( validate( {} ), false );
   } );
 } );
+
+
+test( 'error handling', async t => {
+  await t.test( 'parse rejects non-string input with TypeError', () => {
+    assert.throws( () => parse( null ), TypeError );
+    assert.throws( () => parse( undefined ), TypeError );
+    assert.throws( () => parse( 123 ), TypeError );
+  } );
+
+  await t.test( 'parse rejects missing or multiple reaction arrows', () => {
+    assert.throws( () => parse( 'H2 + O2' ), Error );
+    assert.throws( () => parse( 'H2 -> H2 -> H2' ), Error );
+  } );
+
+  await t.test( 'parse rejects empty reaction sides', () => {
+    assert.throws( () => parse( '-> H2O' ), Error );
+    assert.throws( () => parse( 'H2 ->' ), Error );
+  } );
+
+  await t.test( 'parse rejects empty reaction terms', () => {
+    assert.throws( () => parse( 'H2 +  + O2 -> H2O' ), Error );
+    assert.throws( () => parse( 'H2 + O2 -> H2O + ' ), Error );
+  } );
+
+  await t.test( 'parse rejects invalid formulas', () => {
+    assert.throws( () => parse( 'Xx -> Xx' ), Error );
+  } );
+
+  await t.test( 'parse rejects invalid coefficients', () => {
+    assert.throws( () => parse( '0 H2 -> H2' ), Error );
+    assert.throws( () => parse( '9007199254740992 H2 -> H2' ), Error );
+  } );
+
+  await t.test( 'balance rejects invalid equations', () => {
+    assert.throws( () => balance( '' ), Error );
+    assert.throws( () => balance( 'H2 + O2' ), Error );
+    assert.throws( () => balance( 'Xx -> Xx' ), Error );
+  } );
+
+  await t.test( 'isBalanced rejects invalid equations', () => {
+    assert.throws( () => isBalanced( '' ), Error );
+    assert.throws( () => isBalanced( 'H2 + O2' ), Error );
+    assert.throws( () => isBalanced( 'Xx -> Xx' ), Error );
+  } );
+} );
