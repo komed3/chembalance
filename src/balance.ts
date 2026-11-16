@@ -43,12 +43,8 @@ function hasSpecies ( equation: ChemicalEquation, formula: string ) : boolean {
 function* auxiliaryEquations ( equation: ChemicalEquation, species: EquationTerm[] ) {
   const candidates = species.filter( ( { formula } ) => ! hasSpecies( equation, formula ) );
 
-  function* generate ( i: number, reactants: EquationTerm[], products: EquationTerm[] ) {
-    if ( i === candidates.length ) {
-      yield { reactants, products };
-      return;
-    }
-
+  function* generate ( i: number, reactants: EquationTerm[], products: EquationTerm[] ) : Generator< ChemicalEquation > {
+    if ( i === candidates.length ) { yield { reactants, products }; return }
     yield* generate( i + 1, reactants, products );
 
     const term = candidates[ i ];
