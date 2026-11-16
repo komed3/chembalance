@@ -1,6 +1,6 @@
 {
   "name": "chembalance",
-  "description": "A TypeScript library for balancing chemical reaction equations.",
+  "description": "TypeScript library for balancing chemical reaction equations using stoichiometric methods.",
   "license": "MIT",
   "version": "1.0.0",
   "author": {
@@ -17,6 +17,7 @@
     "reaction-balancing",
     "stoichiometry",
     "linear-algebra",
+    "chemical-equation-balancer",
     "chemparse",
     "typescript"
   ],
