@@ -9,6 +9,10 @@
     "outDir": "dist",
     "strict": true
   },
+  "tsc-alias": {
+    "resolveFullPaths": true,
+    "extension": ".js"
+  },
   "include": [ "src" ],
   "exclude": [ "node_modules", "dist" ]
 }

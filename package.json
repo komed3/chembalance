@@ -40,6 +40,7 @@
     "build:all": "npm run build:cjs && npm run build:esm && npm run build:dts",
     "format": "prettier --ignore-path \"\" --write \"./dist/**/*\" --log-level warn",
     "build": "npm run clean && npm run build:all && npm run format",
+    "postbuild": "tsc-alias",
     "prepublishOnly": "npm run build",
     "test": "npm run build && node --test",
     "lint": "tsc --noEmit"
@@ -50,6 +51,7 @@
   "devDependencies": {
     "prettier": "^3.10.1",
     "rimraf": "^6.1.4",
+    "tsc-alias": "^1.9.10",
     "typescript": "^7.0.2"
   }
 }
