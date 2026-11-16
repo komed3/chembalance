@@ -70,7 +70,8 @@ function toReducedRowEchelonForm ( matrix: bigint[][] ) : { rows: Fraction[][]; 
 }
 
 /** Finds the smallest positive integer solution for a multi-dimensional nullspace. */
-function searchSolution ( matrix: bigint[][], columns: number, maxSearchNodes: number, maxCoefficientSum: number ) : bigint[] {
+function searchSolution ( matrix: bigint[][], columns: number, profile: SearchProfile ) : bigint[] {
+  const { maxSearchNodes, maxCoefficientSum } = SEARCH_LIMITS[ profile ];
   let nodes = 0;
 
   for ( let sum = columns; sum <= maxCoefficientSum; sum++ ) {
@@ -108,10 +109,11 @@ function searchSolution ( matrix: bigint[][], columns: number, maxSearchNodes: n
  * Returns the positive integer solution with the smallest coefficient sum.
  *
  * @param matrix The stoichiometric matrix.
+ * @param profile The search profile for balancing.
  * @returns The smallest positive integer solution.
  * @throws {Error} If no positive balancing solution exists or the search limit is exceeded.
  */
-export function solve ( matrix: bigint[][], maxSearchNodes: number, maxCoefficientSum: number ) : IntegerSolution {
+export function solve ( matrix: bigint[][], profile: SearchProfile ) : IntegerSolution {
   if ( ! matrix.length || ! matrix[ 0 ].length ) throw new Error( 'Matrix must not be empty.' );
 
   const columns = matrix[ 0 ].length;
@@ -139,5 +141,5 @@ export function solve ( matrix: bigint[][], maxSearchNodes: number, maxCoefficie
     return toNumbers( hasNeg ? integers.map( value => -value ) : integers );
   }
 
-  return toNumbers( searchSolution( matrix, columns, maxSearchNodes, maxCoefficientSum ) );
+  return toNumbers( searchSolution( matrix, columns, profile ) );
 }
