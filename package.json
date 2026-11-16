@@ -32,6 +32,17 @@
     "README.md",
     "LICENSE"
   ],
+  "types": "./dist/types/index.d.ts",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "default": "./dist/esm/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  },
   "scripts": {
     "clean": "rimraf dist",
     "build:cjs": "tsc -p tsconfig.cjs.json",
@@ -40,7 +51,7 @@
     "build:all": "npm run build:cjs && npm run build:esm && npm run build:dts",
     "format": "prettier --ignore-path \"\" --write \"./dist/**/*\" --log-level warn",
     "build": "npm run clean && npm run build:all && npm run format",
-    "postbuild": "tsc-alias",
+    "postbuild": "tsc-alias && node scripts/postbuild.mjs",
     "prepublishOnly": "npm run build",
     "test": "npm run build && node --test",
     "lint": "tsc --noEmit"
