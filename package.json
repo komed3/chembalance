@@ -57,7 +57,7 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
-    "chemparse": "^1.2.0"
+    "chemparse": "^1.2.1"
   },
   "devDependencies": {
     "prettier": "^3.10.1",
