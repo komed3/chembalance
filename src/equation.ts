@@ -17,7 +17,9 @@ const ELECTRON_REGEX = /^e(?:\^?([+-])(?:1)?|([⁺⁻]))$/iu;
 
 /** Parses a chemical species, including electrons. */
 function parseComposition ( formula: string ) {
-  const normalized = formula.replace( /[−﹣－]/g, '-' ).replace( /⁻/g, '-' ).replace( /⁺/g, '+' );
+  const normalized = formula.replace( /[−﹣－]/g, '-' ).replace( /⁻¹$/u, '-1' )
+    .replace( /⁻/gu, '-' ).replace( /⁺/gu, '+' );
+
   if ( ELECTRON_REGEX.test( normalized ) ) return { elementCounts: {}, charge: -1 };
   return parseFormula( formula );
 }
