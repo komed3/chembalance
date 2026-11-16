@@ -56,13 +56,46 @@ function* auxiliaryEquations ( equation: ChemicalEquation, species: EquationTerm
 }
 
 
-/** Compares solutions by coefficient sum and then lexicographically. */
-function isBetter ( current: number[], best: number[] ) : boolean {
-  const sum = current.reduce( ( total, v ) => total + v, 0 );
-  const bestSum = best.reduce( ( total, v ) => total + v, 0 );
+/** Counts auxiliary electrons in a reaction equation. */
+function countAuxiliaryElectrons ( { reactants, products }: ChemicalEquation ) : number {
+  return [ ...reactants, ...products ].filter( ( { auxiliary, composition } ) =>
+    auxiliary && composition.charge === -1 && Object.keys( composition.elementCounts ).length === 0
+  ).length;
+}
+
+
+/** Counts auxiliary species in a reaction equation. */
+function countAuxiliaryTerms ( { reactants, products }: ChemicalEquation ) : number {
+  return [ ...reactants, ...products ].filter( ( { auxiliary } ) => auxiliary ).length;
+}
+
+
+/** Compares solutions by auxiliary species, coefficient sum and lexicographically. */
+function isBetter (
+  current: { equation: ChemicalEquation; coefficients: number[] },
+  best: { equation: ChemicalEquation; coefficients: number[] }
+) : boolean {
+  const electrons = countAuxiliaryElectrons( current.equation );
+  const bestElectrons = countAuxiliaryElectrons( best.equation );
+
+  if ( electrons !== bestElectrons ) return electrons < bestElectrons;
+
+  const auxiliaries = countAuxiliaryTerms( current.equation );
+  const bestAuxiliaries = countAuxiliaryTerms( best.equation );
+
+  if ( auxiliaries !== bestAuxiliaries ) return auxiliaries < bestAuxiliaries;
+
+  const sum = current.coefficients.reduce( ( total, v ) => total + v, 0 );
+  const bestSum = best.coefficients.reduce( ( total, v ) => total + v, 0 );
 
   if ( sum !== bestSum ) return sum < bestSum;
-  return current.some( ( v, i ) => v !== best[ i ] && v < best[ i ] );
+
+  for ( let i = 0; i < Math.min( current.coefficients.length, best.coefficients.length ); i++ ) {
+    if ( current.coefficients[ i ] !== best.coefficients[ i ] )
+      return current.coefficients[ i ] < best.coefficients[ i ];
+  }
+
+  return current.coefficients.length < best.coefficients.length;
 }
 
 
@@ -90,7 +123,9 @@ export function balance ( equation: string, options: BalanceOptions = {} ) : Bal
   for ( const candidate of auxiliaryEquations( parsed, species ) ) {
     try {
       const coefficients = solve( buildMatrix( candidate ) );
-      if ( ! best || isBetter( coefficients, best.coefficients ) ) best = { equation: candidate, coefficients };
+      const current = { equation: candidate, coefficients };
+
+      if ( ! best || isBetter( current, best ) ) best = current;
     } catch ( err ) {
       if ( err instanceof Error && err.message === 'Balancing search limit exceeded.' )
         searchLimitExceeded = true;
