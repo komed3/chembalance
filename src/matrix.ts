@@ -16,7 +16,7 @@ function toInteger ( value: number, label: string ) : bigint {
 /**
  * Creates the stoichiometric matrix of a chemical equation.
  *
- * Rows represent elements and optionally ionic charge.
+ * Rows represent elements and ionic charge.
  * Columns represent reaction terms.
  *
  * @param equation The parsed chemical equation.
