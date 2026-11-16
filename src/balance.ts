@@ -28,20 +28,15 @@ function* auxiliaryEquations ( { reactants, products }: ChemicalEquation, specie
   const existing = new Set( [ ...reactants, ...products ].map( ( { formula } ) => formula ) );
   const candidates = species.filter( ( { formula } ) => ! existing.has( formula ) );
 
-  function insert ( terms: EquationTerm[], term: EquationTerm ) : EquationTerm[] {
-    const auxiliaryCount = terms.filter( ( { auxiliary } ) => auxiliary ).length;
-    const i = Math.min( 1 + auxiliaryCount, terms.length );
-
-    return [ ...terms.slice( 0, i ), term, ...terms.slice( i ) ];
-  }
+  const append = ( terms: EquationTerm[], term: EquationTerm ) : EquationTerm[] => [ ...terms, term ];
 
   function* generate ( i: number, r: EquationTerm[], p: EquationTerm[] ) : Generator< ChemicalEquation > {
     if ( i === candidates.length ) { yield { reactants: r, products: p }; return }
     yield* generate( i + 1, r, p );
 
     const term = candidates[ i ];
-    yield* generate( i + 1, insert( r, term ), p );
-    yield* generate( i + 1, r, insert( p, term ) );
+    yield* generate( i + 1, append( r, term ), p );
+    yield* generate( i + 1, r, append( p, term ) );
   }
 
   yield* generate( 0, reactants, products );
