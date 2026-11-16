@@ -128,4 +128,17 @@ test( 'balance', async t => {
       );
     } );
   }
+
+  await t.test( 'recalculates existing coefficients', () => {
+    const result = balance( '2 H2 + 4 O2 -> 7 H2O' );
+
+    assert.equal( result.equation, '2 H2 + O2 -> 2 H2O' );
+    assert.deepEqual( result.coefficients, [ 2, 1, 2 ] );
+  } );
+
+  await t.test( 'returns the smallest integer coefficients', () => {
+    const result = balance( '4 H2 + 2 O2 -> 4 H2O' );
+
+    assert.deepEqual( result.coefficients, [ 2, 1, 2 ] );
+  } );
 } );
