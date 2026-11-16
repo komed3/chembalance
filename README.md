@@ -23,3 +23,13 @@ searches for the smallest positive integer coefficients.
 - Parses reaction equations into structured data
 - Provides TypeScript types and both named and default exports
 - Uses exact rational arithmetic for matrix calculations
+
+
+## Installation
+
+```bash
+npm install chembalance
+```
+
+ChemBalance uses [ChemParse](https://npmjs.com/package/chemparse) to parse
+chemical formulas and particle expressions.
