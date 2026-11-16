@@ -220,6 +220,21 @@ test( 'special species', async t => {
 } );
 
 
+test( 'multi-dimensional solutions', async t => {
+  await t.test( 'finds the smallest positive integer solution', () => {
+    const result = balance( 'C + O2 -> CO + CO2' );
+
+    assert.deepEqual( result.coefficients, [ 3, 2, 2, 1 ] );
+    assert.equal( result.equation, '3 C + 2 O2 -> 2 CO + CO2' );
+    assert.equal( isBalanced( result.equation ), true );
+  } );
+
+  await t.test( 'rejects systems without positive solutions', () => {
+    assert.throws( () => balance( 'H2 -> O2' ), /positive balancing solution/ );
+  } );
+} );
+
+
 test( 'error handling', async t => {
   await t.test( 'parse rejects non-string input with TypeError', () => {
     assert.throws( () => parse( null ), TypeError );
