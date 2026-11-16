@@ -239,16 +239,16 @@ test( 'reaction media', async t => {
   await t.test( 'balances reactions in acidic medium', () => {
     const result = balance( 'MnO4^- + Fe^2+ -> Mn^2+ + Fe^3+', { medium: 'acidic' } );
 
-    assert.equal( result.equation, 'MnO4^- + 8 H^+ + 5 Fe^2+ -> Mn^2+ + 4 H2O + 5 Fe^3+' );
-    assert.deepEqual( result.coefficients, [ 1, 8, 5, 1, 4, 5 ] );
+    assert.equal( result.equation, 'MnO4^- + 5 Fe^2+ + 8 H^+ -> Mn^2+ + 5 Fe^3+ + 4 H2O' );
+    assert.deepEqual( result.coefficients, [ 1, 5, 8, 1, 5, 4 ] );
     assert.equal( isBalanced( result.equation ), true );
   } );
 
   await t.test( 'balances reactions in basic medium', () => {
     const result = balance( 'ClO^- + Cr(OH)3 -> Cl^- + CrO4^2-', { medium: 'basic' } );
 
-    assert.equal( result.equation, '3 ClO^- + 4 OH^- + 2 Cr(OH)3 -> 3 Cl^- + 5 H2O + 2 CrO4^2-' );
-    assert.deepEqual( result.coefficients, [ 3, 4, 2, 3, 5, 2 ] );
+    assert.equal( result.equation, '3 ClO^- + 2 Cr(OH)3 + 4 OH^- -> 3 Cl^- + 2 CrO4^2- + 5 H2O' );
+    assert.deepEqual( result.coefficients, [ 3, 2, 4, 3, 2, 5 ] );
     assert.equal( isBalanced( result.equation ), true );
   } );
 
