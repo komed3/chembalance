@@ -39,11 +39,8 @@ function parseTerm ( value: string ) : EquationTerm {
  * @throws {Error} If the side contains invalid or empty terms.
  */
 function parseSide ( value: string ) : EquationTerm[] {
-  const terms = value.trim().split( TERM_SEPARATOR_REGEX );
-
-  if ( terms.some( term => ! term.trim() ) )
-    throw new Error( 'Reaction contains an empty term.' );
-
+  const terms = value.trimStart().split( TERM_SEPARATOR_REGEX );
+  if ( terms.some( term => ! term.trim() ) ) throw new Error( 'Reaction contains an empty term.' );
   return terms.map( parseTerm );
 }
 
