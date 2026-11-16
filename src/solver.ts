@@ -18,7 +18,6 @@ function toIntegers ( solution: Fraction[] ) : bigint[] {
   return integers.map( v => v / divisor );
 }
 
-
 /** Converts a positive integer solution into safe JavaScript numbers. */
 function toNumbers ( values: bigint[] ) : IntegerSolution {
   return values.map( v => {
@@ -31,12 +30,10 @@ function toNumbers ( values: bigint[] ) : IntegerSolution {
   } );
 }
 
-
 /** Checks whether a candidate satisfies every matrix row. */
 function isSolution ( matrix: bigint[][], values: bigint[] ) : boolean {
   return matrix.every( row => row.reduce( ( sum, v, i ) => sum + v * values[ i ], 0n ) === 0n );
 }
-
 
 /** Calculates the reduced row echelon form of a matrix. */
 function toReducedRowEchelonForm ( matrix: bigint[][] ) : { rows: Fraction[][]; pivotColumns: number[] } {
@@ -71,7 +68,6 @@ function toReducedRowEchelonForm ( matrix: bigint[][] ) : { rows: Fraction[][]; 
 
   return { rows, pivotColumns };
 }
-
 
 /** Finds the smallest positive integer solution for a multi-dimensional nullspace. */
 function searchSolution ( matrix: bigint[][], columns: number ) : bigint[] {
