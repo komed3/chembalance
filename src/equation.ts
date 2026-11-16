@@ -11,6 +11,17 @@ const TERM_SEPARATOR_REGEX = /\s+\+\s+/;
 /** Matches an optional leading stoichiometric coefficient. */
 const COEFFICIENT_REGEX = /^(\d+)\s*(.+)$/;
 
+/** Matches supported electron notation. */
+const ELECTRON_REGEX = /^e(?:\^?([+-])(?:1)?|([⁺⁻]))$/iu;
+
+
+/** Parses a chemical species, including electrons. */
+function parseComposition ( formula: string ) {
+  const normalized = formula.replace( /[−﹣－]/g, '-' ).replace( /⁻/g, '-' ).replace( /⁺/g, '+' );
+  if ( ELECTRON_REGEX.test( normalized ) ) return { elementCounts: {}, charge: -1 };
+  return parseFormula( formula );
+}
+
 
 /**
  * Parses a reaction term into its coefficient and chemical formula.
@@ -26,7 +37,7 @@ function parseTerm ( value: string ) : EquationTerm {
   if ( ! Number.isSafeInteger( coefficient ) || coefficient <= 0 )
     throw new Error( `Invalid stoichiometric coefficient in "${ term }".` );
 
-  return { formula, coefficient, composition: parseFormula( formula ) };
+  return { formula, coefficient, composition: parseComposition( formula ) };
 }
 
 /**
