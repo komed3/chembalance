@@ -108,4 +108,24 @@ test( 'balance', async t => {
     balanced: 'H^+ + Cl^- -> HCl',
     coefficients: [ 1, 1, 1 ]
   } ];
+
+  for ( const { equation, balanced, coefficients } of cases ) {
+    await t.test( equation, () => {
+      const result = balance( equation );
+
+      assert.equal( result.equation, balanced );
+      assert.deepEqual( result.coefficients, coefficients );
+      assert.equal( result.balanced, true );
+
+      assert.deepEqual(
+        result.reactants.map( ( { coefficient } ) => coefficient ),
+        coefficients.slice( 0, result.reactants.length )
+      );
+
+      assert.deepEqual(
+        result.products.map( ( { coefficient } ) => coefficient ),
+        coefficients.slice( result.reactants.length )
+      );
+    } );
+  }
 } );
