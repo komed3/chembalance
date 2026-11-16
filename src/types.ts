@@ -13,9 +13,13 @@ export type IntegerSolution = number[];
 /** Supported reaction media. */
 export type ReactionMedium = 'acidic' | 'basic';
 
+/** Available search profiles. */
+export type SearchProfile = 'fast' | 'balanced' | 'thorough';
+
 /** Options for balancing a chemical equation. */
 export interface BalanceOptions {
   medium?: ReactionMedium;
+  search?: SearchProfile;
 }
 
 /** A parsed term of a chemical reaction. */
