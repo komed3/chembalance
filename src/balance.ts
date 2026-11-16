@@ -76,22 +76,40 @@ function isBetter ( current: number[], best: number[] ) : boolean {
  * Existing stoichiometric coefficients are recalculated.
  *
  * @param equation The chemical reaction equation.
+ * @param options Optional reaction conditions.
  * @returns The balanced equation and its coefficients.
  * @throws {Error} If the equation cannot be balanced.
  */
-export function balance ( equation: string ) : BalanceResult {
-  const parsed = parseEquation( equation ), matrix = buildMatrix( parsed );
-  const coefficients = solve( matrix );
+export function balance ( equation: string, options: BalanceOptions = {} ) : BalanceResult {
+  const { medium } = options;
+  const parsed = parseEquation( equation );
 
-  const reactants = createTerms( parsed.reactants, coefficients, 0 );
-  const products = createTerms( parsed.products, coefficients, parsed.reactants.length );
+  if ( medium !== undefined && medium !== 'acidic' && medium !== 'basic' )
+    throw new Error( 'Reaction medium must be "acidic" or "basic".' );
+
+  const species = createAuxiliaryTerms( medium );
+  let best: { equation: ChemicalEquation; coefficients: number[] } | undefined;
+
+  for ( const candidate of auxiliaryEquations( parsed, species ) ) {
+    try {
+      const coefficients = solve( buildMatrix( candidate ) );
+      if ( ! best || isBetter( coefficients, best.coefficients ) ) best = { equation: candidate, coefficients };
+    } catch ( err ) {
+      if ( err instanceof Error && err.message === 'Balancing search limit exceeded.' ) throw err;
+    }
+  }
+
+  if ( ! best ) throw new Error( 'No positive balancing solution exists for the selected reaction medium.' );
+
+  const reactants = createTerms( best.equation.reactants, best.coefficients, 0 );
+  const products = createTerms( best.equation.products, best.coefficients, best.equation.reactants.length );
 
   return {
     equation: [
       reactants.map( formatTerm ).join( ' + ' ),
       products.map( formatTerm ).join( ' + ' )
     ].join( ' -> ' ),
-    coefficients, reactants, products,
+    coefficients: best.coefficients, reactants, products,
     balanced: true
   };
 }
