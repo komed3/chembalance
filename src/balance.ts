@@ -1,10 +1,10 @@
 import { parseEquation } from './equation';
 import { buildMatrix, isMatrixBalanced } from './matrix';
 import { solve } from './solver';
-import type { BalanceOptions, BalanceResult, BalancedTerm, ChemicalEquation, EquationTerm, SearchProfile } from './types';
+import type { BalanceOptions, BalanceResult, BalancedTerm, ChemicalEquation, EquationTerm, SearchLimits, SearchProfile } from './types';
 
 
-const SEARCH_LIMITS: Record< SearchProfile, { maxSearchNodes: number; maxCoefficientSum: number } > = {
+const SEARCH_LIMITS: Record< SearchProfile, SearchLimits > = {
   fast: { maxSearchNodes: 2_000, maxCoefficientSum: 1_000 },
   balanced: { maxSearchNodes: 100_000, maxCoefficientSum: 5_000 },
   thorough: { maxSearchNodes: 2_000_000, maxCoefficientSum: 10_000 }

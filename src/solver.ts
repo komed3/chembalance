@@ -1,5 +1,12 @@
 import { divide, fraction, gcd, lcm, multiply, negate, subtract } from './rational';
-import type { Fraction, IntegerSolution } from './types';
+import type { Fraction, IntegerSolution, SearchLimits, SearchProfile } from './types';
+
+
+const SEARCH_LIMITS: Record< SearchProfile, SearchLimits > = {
+  fast: { maxSearchNodes: 2_000, maxCoefficientSum: 1_000 },
+  balanced: { maxSearchNodes: 100_000, maxCoefficientSum: 5_000 },
+  thorough: { maxSearchNodes: 2_000_000, maxCoefficientSum: 10_000 }
+} as const;
 
 
 /** Converts a rational solution into its smallest integer representation. */
