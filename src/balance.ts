@@ -66,7 +66,7 @@ function* auxiliaryEquations ( equation: ChemicalEquation, species: EquationTerm
 /** Counts auxiliary electrons in a reaction equation. */
 function countAuxiliaryElectrons ( { reactants, products }: ChemicalEquation ) : number {
   return [ ...reactants, ...products ].filter( ( { auxiliary, composition } ) =>
-    auxiliary && composition.charge === -1 && Object.keys( composition.elementCounts ).length === 0
+    auxiliary && composition.particleCounts?.e !== undefined
   ).length;
 }
 
