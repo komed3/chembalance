@@ -1,7 +1,7 @@
 import { parseEquation } from './equation';
 import { buildMatrix, isMatrixBalanced } from './matrix';
 import { solve } from './solver';
-import type { BalanceResult, BalancedTerm, EquationTerm } from './types';
+import type { BalanceOptions, BalanceResult, BalancedTerm, ChemicalEquation, EquationTerm } from './types';
 
 
 /** Formats a reaction term using its stoichiometric coefficient. */
