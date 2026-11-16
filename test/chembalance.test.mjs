@@ -67,4 +67,12 @@ test( 'parse', async t => {
     assert.equal( result.reactants.length, 2 );
     assert.equal( result.products.length, 1 );
   } );
+
+  await t.test( 'parses ionic charges', () => {
+    const result = parse( 'H^+ + Cl^- -> HCl' );
+
+    assert.equal( result.reactants[ 0 ].composition.charge, 1 );
+    assert.equal( result.reactants[ 1 ].composition.charge, -1 );
+    assert.equal( result.products[ 0 ].composition.charge, undefined );
+  } );
 } );
