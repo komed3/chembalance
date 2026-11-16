@@ -76,3 +76,36 @@ test( 'parse', async t => {
     assert.equal( result.products[ 0 ].composition.charge, undefined );
   } );
 } );
+
+
+test( 'balance', async t => {
+  const cases = [ {
+    equation: 'H2 + O2 -> H2O',
+    balanced: '2 H2 + O2 -> 2 H2O',
+    coefficients: [ 2, 1, 2 ]
+  }, {
+    equation: 'Fe + O2 -> Fe2O3',
+    balanced: '4 Fe + 3 O2 -> 2 Fe2O3',
+    coefficients: [ 4, 3, 2 ]
+  }, {
+    equation: 'C2H6 + O2 -> CO2 + H2O',
+    balanced: '2 C2H6 + 7 O2 -> 4 CO2 + 6 H2O',
+    coefficients: [ 2, 7, 4, 6 ]
+  }, {
+    equation: 'Al + HCl -> AlCl3 + H2',
+    balanced: '2 Al + 6 HCl -> 2 AlCl3 + 3 H2',
+    coefficients: [ 2, 6, 2, 3 ]
+  }, {
+    equation: 'NaOH + H2SO4 -> Na2SO4 + H2O',
+    balanced: '2 NaOH + H2SO4 -> Na2SO4 + 2 H2O',
+    coefficients: [ 2, 1, 1, 2 ]
+  }, {
+    equation: 'Ca(OH)2 + HCl -> CaCl2 + H2O',
+    balanced: 'Ca(OH)2 + 2 HCl -> CaCl2 + 2 H2O',
+    coefficients: [ 1, 2, 1, 2 ]
+  }, {
+    equation: 'H^+ + Cl^- -> HCl',
+    balanced: 'H^+ + Cl^- -> HCl',
+    coefficients: [ 1, 1, 1 ]
+  } ];
+} );
