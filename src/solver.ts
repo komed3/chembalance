@@ -2,13 +2,6 @@ import { divide, fraction, gcd, lcm, multiply, negate, subtract } from './ration
 import type { Fraction, IntegerSolution } from './types';
 
 
-/** Maximum number of nodes to explore during the search for a positive integer solution. */
-const MAX_SEARCH_NODES = 2_000_000;
-
-/** Maximum sum of coefficients to consider during the search for a positive integer solution. */
-const MAX_COEFFICIENT_SUM = 10_000;
-
-
 /** Converts a rational solution into its smallest integer representation. */
 function toIntegers ( solution: Fraction[] ) : bigint[] {
   const denominator = solution.reduce( ( v, { denominator } ) => lcm( v, denominator ), 1n );
@@ -70,14 +63,14 @@ function toReducedRowEchelonForm ( matrix: bigint[][] ) : { rows: Fraction[][]; 
 }
 
 /** Finds the smallest positive integer solution for a multi-dimensional nullspace. */
-function searchSolution ( matrix: bigint[][], columns: number ) : bigint[] {
+function searchSolution ( matrix: bigint[][], columns: number, maxSearchNodes: number, maxCoefficientSum: number ) : bigint[] {
   let nodes = 0;
 
-  for ( let sum = columns; sum <= MAX_COEFFICIENT_SUM; sum++ ) {
+  for ( let sum = columns; sum <= maxCoefficientSum; sum++ ) {
     const values = Array.from( { length: columns }, () => 1n );
 
     function search ( i: number, remaining: number ) : bigint[] | undefined {
-      if ( ++nodes > MAX_SEARCH_NODES ) throw new Error( 'Balancing search limit exceeded.' );
+      if ( ++nodes > maxSearchNodes ) throw new Error( 'Balancing search limit exceeded.' );
 
       if ( i === columns - 1 ) {
         if ( remaining < 1 ) return;
@@ -98,7 +91,7 @@ function searchSolution ( matrix: bigint[][], columns: number ) : bigint[] {
     if ( result ) return result;
   }
 
-  throw new Error( 'No positive integer balancing solution found within the search limit.' );
+  throw new Error( 'Balancing search limit exceeded.' );
 }
 
 
@@ -111,7 +104,7 @@ function searchSolution ( matrix: bigint[][], columns: number ) : bigint[] {
  * @returns The smallest positive integer solution.
  * @throws {Error} If no positive balancing solution exists or the search limit is exceeded.
  */
-export function solve ( matrix: bigint[][] ) : IntegerSolution {
+export function solve ( matrix: bigint[][], maxSearchNodes: number, maxCoefficientSum: number ) : IntegerSolution {
   if ( ! matrix.length || ! matrix[ 0 ].length ) throw new Error( 'Matrix must not be empty.' );
 
   const columns = matrix[ 0 ].length;
@@ -139,5 +132,5 @@ export function solve ( matrix: bigint[][] ) : IntegerSolution {
     return toNumbers( hasNeg ? integers.map( value => -value ) : integers );
   }
 
-  return toNumbers( searchSolution( matrix, columns ) );
+  return toNumbers( searchSolution( matrix, columns, maxSearchNodes, maxCoefficientSum ) );
 }
