@@ -235,6 +235,32 @@ test( 'multi-dimensional solutions', async t => {
 } );
 
 
+test( 'reaction media', async t => {
+  await t.test( 'balances reactions in acidic medium', () => {
+    const result = balance( 'MnO4^- + Fe^2+ -> Mn^2+ + Fe^3+', { medium: 'acidic' } );
+
+    assert.equal( result.equation, 'MnO4^- + 8 H^+ + 5 Fe^2+ -> Mn^2+ + 4 H2O + 5 Fe^3+' );
+    assert.equal( isBalanced( result.equation ), true );
+  } );
+
+  await t.test( 'balances reactions in basic medium', () => {
+    const result = balance( 'ClO^- + Cr(OH)3 -> Cl^- + CrO4^2-', { medium: 'basic' } );
+
+    assert.equal( isBalanced( result.equation ), true );
+  } );
+
+  await t.test( 'does not add auxiliary species unnecessarily', () => {
+    const result = balance( 'H2 + O2 -> H2O', { medium: 'acidic' } );
+
+    assert.equal( result.equation, '2 H2 + O2 -> 2 H2O' );
+  } );
+
+  await t.test( 'rejects unsupported reaction media', () => {
+    assert.throws( () => balance( 'H2 + O2 -> H2O', { medium: 'neutral' } ), /Reaction medium/ );
+  } );
+} );
+
+
 test( 'error handling', async t => {
   await t.test( 'parse rejects non-string input with TypeError', () => {
     assert.throws( () => parse( null ), TypeError );
