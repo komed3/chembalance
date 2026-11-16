@@ -34,3 +34,23 @@ test( 'exports', async t => {
     assert.equal( typeof CommonJS.default.validate, 'function' );
   } );
 } );
+
+
+test( 'parse', async t => {
+  await t.test( 'parses reaction terms', () => {
+    const result = parse( '2 H2 + O2 -> H2O' );
+
+    assert.equal( result.reactants.length, 2 );
+    assert.equal( result.products.length, 1 );
+
+    assert.deepEqual(
+      result.reactants.map( ( { formula, coefficient } ) => ( { formula, coefficient } ) ),
+      [ { formula: 'H2', coefficient: 2 }, { formula: 'O2', coefficient: 1 } ]
+    );
+
+    assert.deepEqual(
+      result.products.map( ( { formula, coefficient } ) => ( { formula, coefficient } ) ),
+      [ { formula: 'H2O', coefficient: 1 } ]
+    );
+  } );
+} );
