@@ -2,7 +2,11 @@ import { balance, isBalanced, validate } from './balance';
 import { parseEquation } from './equation';
 
 
-export type { BalancedTerm, BalanceResult, ChemicalEquation, EquationTerm } from './types';
+export type {
+  BalancedTerm, BalanceOptions, BalanceResult, ChemicalEquation,
+  EquationTerm, Fraction, IntegerSolution, ReactionMedium
+} from './types';
+
 export { balance, isBalanced, parseEquation as parse, validate };
 
 
