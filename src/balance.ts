@@ -15,6 +15,61 @@ function createTerms ( terms: EquationTerm[], coefficients: number[], offset: nu
 }
 
 
+/** Creates optional species for the selected reaction medium. */
+function createAuxiliaryTerms ( medium: BalanceOptions[ 'medium' ] ) : EquationTerm[] {
+  if ( medium === 'acidic' ) return [
+    ...parseEquation( 'H2O -> H2O' ).reactants.map( term => ( { ...term, auxiliary: true } ) ),
+    ...parseEquation( 'H^+ -> H^+' ).reactants.map( term => ( { ...term, auxiliary: true } ) ),
+    { ...parseEquation( 'e^- -> e^-' ).reactants[ 0 ], auxiliary: true }
+  ];
+
+  if ( medium === 'basic' ) return [
+    ...parseEquation( 'H2O -> H2O' ).reactants.map( term => ( { ...term, auxiliary: true } ) ),
+    ...parseEquation( 'OH^- -> OH^-' ).reactants.map( term => ( { ...term, auxiliary: true } ) ),
+    { ...parseEquation( 'e^- -> e^-' ).reactants[ 0 ], auxiliary: true }
+  ];
+
+  return [];
+}
+
+
+/** Returns whether an equation already contains a species. */
+function hasSpecies ( equation: ChemicalEquation, formula: string ) : boolean {
+  return [ ...equation.reactants, ...equation.products ].some( term => term.formula === formula );
+}
+
+
+/** Generates all combinations of optional species placements. */
+function* auxiliaryEquations ( equation: ChemicalEquation, species: EquationTerm[] ) {
+  const candidates = species.filter( ( { formula } ) => ! hasSpecies( equation, formula ) );
+
+  function* generate ( i: number, reactants: EquationTerm[], products: EquationTerm[] ) {
+    if ( i === candidates.length ) {
+      yield { reactants, products };
+      return;
+    }
+
+    yield* generate( i + 1, reactants, products );
+
+    const term = candidates[ i ];
+    yield* generate( i + 1, [ ...reactants, term ], products );
+    yield* generate( i + 1, reactants, [ ...products, term ] );
+  }
+
+  yield* generate( 0, equation.reactants, equation.products );
+}
+
+
+/** Compares solutions by coefficient sum and then lexicographically. */
+function isBetter ( current: number[], best: number[] ) : boolean {
+  const sum = current.reduce( ( total, v ) => total + v, 0 );
+  const bestSum = best.reduce( ( total, v ) => total + v, 0 );
+
+  if ( sum !== bestSum ) return sum < bestSum;
+  return current.some( ( v, i ) => v !== best[ i ] && v < best[ i ] );
+}
+
+
 /**
  * Balances a chemical reaction equation.
  *
