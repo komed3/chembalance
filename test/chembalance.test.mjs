@@ -142,3 +142,23 @@ test( 'balance', async t => {
     assert.deepEqual( result.coefficients, [ 2, 1, 2 ] );
   } );
 } );
+
+
+test( 'isBalanced', async t => {
+  await t.test( 'accepts balanced equations', () => {
+    assert.equal( isBalanced( '2 H2 + O2 -> 2 H2O' ), true );
+    assert.equal( isBalanced( '4 Fe + 3 O2 -> 2 Fe2O3' ), true );
+    assert.equal( isBalanced( 'H^+ + Cl^- -> HCl' ), true );
+  } );
+
+  await t.test( 'rejects unbalanced equations', () => {
+    assert.equal( isBalanced( 'H2 + O2 -> H2O' ), false );
+    assert.equal( isBalanced( 'Fe + O2 -> Fe2O3' ), false );
+    assert.equal( isBalanced( '2 H2 + 2 O2 -> 2 H2O' ), false );
+  } );
+
+  await t.test( 'takes existing coefficients into account', () => {
+    assert.equal( isBalanced( '2 H2 + O2 -> 2 H2O' ), true );
+    assert.equal( isBalanced( 'H2 + O2 -> 2 H2O' ), false );
+  } );
+} );
