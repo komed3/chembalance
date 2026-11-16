@@ -53,4 +53,18 @@ test( 'parse', async t => {
       [ { formula: 'H2O', coefficient: 1 } ]
     );
   } );
+
+  await t.test( 'parses element compositions', () => {
+    const result = parse( 'H2O -> H2O' );
+
+    assert.deepEqual( result.reactants[ 0 ].composition.elementCounts, { H: 2, O: 1 } );
+    assert.deepEqual( result.products[ 0 ].composition.elementCounts, { H: 2, O: 1 } );
+  } );
+
+  await t.test( 'parses Unicode reaction arrows', () => {
+    const result = parse( 'H2 + O2 → H2O' );
+
+    assert.equal( result.reactants.length, 2 );
+    assert.equal( result.products.length, 1 );
+  } );
 } );
