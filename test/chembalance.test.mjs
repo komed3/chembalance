@@ -194,6 +194,32 @@ test( 'validate', async t => {
 } );
 
 
+test( 'special species', async t => {
+  await t.test( 'parses electron notation', () => {
+    for ( const formula of [ 'e-', 'e^-', 'e^-1', 'e⁻', 'e⁻¹', 'e^−', 'e^−1' ] ) {
+      const result = parse( `${ formula } -> ${ formula }` );
+
+      assert.deepEqual( result.reactants[ 0 ].composition.elementCounts, {} );
+      assert.equal( result.reactants[ 0 ].composition.charge, -1 );
+    }
+  } );
+
+  await t.test( 'balances electron half-reactions', () => {
+    const result = balance( 'Fe^2+ -> Fe^3+ + e-' );
+
+    assert.equal( result.equation, 'Fe^2+ -> Fe^3+ + e-' );
+    assert.deepEqual( result.coefficients, [ 1, 1, 1 ] );
+    assert.equal( isBalanced( result.equation ), true );
+  } );
+
+  await t.test( 'preserves the original electron notation', () => {
+    const result = balance( 'Fe^2+ -> Fe^3+ + e⁻¹' );
+
+    assert.equal( result.equation, 'Fe^2+ -> Fe^3+ + e⁻¹' );
+  } );
+} );
+
+
 test( 'error handling', async t => {
   await t.test( 'parse rejects non-string input with TypeError', () => {
     assert.throws( () => parse( null ), TypeError );
