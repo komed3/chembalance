@@ -240,12 +240,15 @@ test( 'reaction media', async t => {
     const result = balance( 'MnO4^- + Fe^2+ -> Mn^2+ + Fe^3+', { medium: 'acidic' } );
 
     assert.equal( result.equation, 'MnO4^- + 8 H^+ + 5 Fe^2+ -> Mn^2+ + 4 H2O + 5 Fe^3+' );
+    assert.deepEqual( result.coefficients, [ 1, 8, 5, 1, 4, 5 ] );
     assert.equal( isBalanced( result.equation ), true );
   } );
 
   await t.test( 'balances reactions in basic medium', () => {
     const result = balance( 'ClO^- + Cr(OH)3 -> Cl^- + CrO4^2-', { medium: 'basic' } );
 
+    assert.equal( result.equation, '3 ClO^- + 4 OH^- + 2 Cr(OH)3 -> 3 Cl^- + 5 H2O + 2 CrO4^2-' );
+    assert.deepEqual( result.coefficients, [ 3, 4, 2, 3, 5, 2 ] );
     assert.equal( isBalanced( result.equation ), true );
   } );
 
@@ -266,6 +269,10 @@ test( 'error handling', async t => {
     assert.throws( () => parse( null ), TypeError );
     assert.throws( () => parse( undefined ), TypeError );
     assert.throws( () => parse( 123 ), TypeError );
+  } );
+
+  await t.test( 'parse rejects unsupported particles', () => {
+    assert.throws( () => parse( 'α -> α' ), /Unsupported particle/ );
   } );
 
   await t.test( 'parse rejects missing or multiple reaction arrows', () => {
@@ -298,9 +305,17 @@ test( 'error handling', async t => {
     assert.throws( () => balance( 'Xx -> Xx' ), Error );
   } );
 
+  await t.test( 'balance rejects solutions containing zero coefficients', () => {
+    assert.throws( () => balance( 'H2 + O2 -> H2' ), /positive balancing solution/ );
+  } );
+
   await t.test( 'isBalanced rejects invalid equations', () => {
     assert.throws( () => isBalanced( '' ), Error );
     assert.throws( () => isBalanced( 'H2 + O2' ), Error );
     assert.throws( () => isBalanced( 'Xx -> Xx' ), Error );
+  } );
+
+  await t.test( 'isBalanced rejects unbalanced ionic charges', () => {
+    assert.equal( isBalanced( 'Fe^2+ -> Fe^3+' ), false );
   } );
 } );
