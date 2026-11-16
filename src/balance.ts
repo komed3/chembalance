@@ -43,13 +43,20 @@ function hasSpecies ( equation: ChemicalEquation, formula: string ) : boolean {
 function* auxiliaryEquations ( equation: ChemicalEquation, species: EquationTerm[] ) {
   const candidates = species.filter( ( { formula } ) => ! hasSpecies( equation, formula ) );
 
+  function insert ( terms: EquationTerm[], term: EquationTerm ) : EquationTerm[] {
+    const auxiliaryCount = terms.filter( ( { auxiliary } ) => auxiliary ).length;
+    const i = Math.min( 1 + auxiliaryCount, terms.length );
+
+    return [ ...terms.slice( 0, i ), term, ...terms.slice( i ) ];
+  }
+
   function* generate ( i: number, reactants: EquationTerm[], products: EquationTerm[] ) : Generator< ChemicalEquation > {
     if ( i === candidates.length ) { yield { reactants, products }; return }
     yield* generate( i + 1, reactants, products );
 
     const term = candidates[ i ];
-    yield* generate( i + 1, [ ...reactants, term ], products );
-    yield* generate( i + 1, reactants, [ ...products, term ] );
+    yield* generate( i + 1, insert( reactants, term ), products );
+    yield* generate( i + 1, reactants, insert( products, term ) );
   }
 
   yield* generate( 0, equation.reactants, equation.products );
