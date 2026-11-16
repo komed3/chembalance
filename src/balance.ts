@@ -1,7 +1,14 @@
 import { parseEquation } from './equation';
 import { buildMatrix, isMatrixBalanced } from './matrix';
 import { solve } from './solver';
-import type { BalanceOptions, BalanceResult, BalancedTerm, ChemicalEquation, EquationTerm } from './types';
+import type { BalanceOptions, BalanceResult, BalancedTerm, ChemicalEquation, EquationTerm, SearchProfile } from './types';
+
+
+const SEARCH_LIMITS: Record< SearchProfile, { maxSearchNodes: number; maxCoefficientSum: number } > = {
+  fast: { maxSearchNodes: 2_000, maxCoefficientSum: 1_000 },
+  balanced: { maxSearchNodes: 100_000, maxCoefficientSum: 5_000 },
+  thorough: { maxSearchNodes: 2_000_000, maxCoefficientSum: 10_000 }
+} as const;
 
 
 /** Formats a reaction term using its stoichiometric coefficient. */
@@ -92,19 +99,23 @@ function isBetter (
  * @throws {Error} If the equation cannot be balanced.
  */
 export function balance ( equation: string, options: BalanceOptions = {} ) : BalanceResult {
-  const { medium } = options;
+  const { medium, search = 'balanced' } = options;
   const parsed = parseEquation( equation );
+
+  if ( ! ( search in SEARCH_LIMITS ) )
+    throw new Error( 'Search profile must be "fast", "balanced" or "thorough".' );
 
   if ( medium !== undefined && medium !== 'acidic' && medium !== 'basic' )
     throw new Error( 'Reaction medium must be "acidic" or "basic".' );
 
+  const { maxSearchNodes, maxCoefficientSum } = SEARCH_LIMITS[ search ];
   const species = createAuxiliaryTerms( medium );
   let best: { equation: ChemicalEquation; coefficients: number[] } | undefined;
   let searchLimitExceeded = false;
 
   for ( const candidate of auxiliaryEquations( parsed, species ) ) {
     try {
-      const coefficients = solve( buildMatrix( candidate ) );
+      const coefficients = solve( buildMatrix( candidate ), maxSearchNodes, maxCoefficientSum );
       const current = { equation: candidate, coefficients };
 
       if ( ! best || isBetter( current, best ) ) best = current;
