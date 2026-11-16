@@ -24,10 +24,9 @@ export function lcm ( a: bigint, b: bigint ) : bigint {
 /** Creates a normalized fraction. */
 export function fraction ( numerator: bigint, denominator = 1n ) : Fraction {
   if ( denominator === 0n ) throw new Error( 'Fraction denominator must not be zero.' );
-
   if ( denominator < 0n ) numerator = -numerator, denominator = -denominator;
-  const divisor = gcd( numerator, denominator );
 
+  const divisor = gcd( numerator, denominator );
   return { numerator: numerator / divisor, denominator: denominator / divisor };
 }
 
