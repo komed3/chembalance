@@ -16,6 +16,12 @@ export type ReactionMedium = 'acidic' | 'basic';
 /** Available search profiles. */
 export type SearchProfile = 'fast' | 'balanced' | 'thorough';
 
+/** Limits for each search profile. */
+export type SearchLimits = {
+  maxSearchNodes: number;
+  maxCoefficientSum: number;
+};
+
 /** Options for balancing a chemical equation. */
 export interface BalanceOptions {
   medium?: ReactionMedium;
