@@ -112,8 +112,19 @@ export function balance ( equation: string, options: BalanceOptions = {} ) : Bal
 
       if ( ! best || isBetter( current, best ) ) best = current;
     } catch ( err ) {
-      if ( err instanceof Error && err.message === 'Balancing search limit exceeded.' )
+      if ( ! ( err instanceof Error ) ) throw err;
+
+      if ( err.message === 'Balancing search limit exceeded.' ) {
         searchLimitExceeded = true;
+        continue;
+      }
+
+      if (
+        err.message === 'The equation has no non-trivial balancing solution.' ||
+        err.message === 'No strictly positive balancing solution exists.'
+      ) continue;
+
+      throw err;
     }
   }
 
