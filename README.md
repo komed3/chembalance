@@ -311,3 +311,71 @@ Higher profiles allow more complex searches but may require significantly more c
 
 A search limit error indicates that no solution was found within the configured limits.
 It does not necessarily mean that no positive integer solution exists.
+
+
+## Result Format
+
+`balance()` returns a `BalanceResult` object:
+
+```ts
+interface BalanceResult {
+  equation: string;
+  coefficients: number[];
+  reactants: BalancedTerm[];
+  products: BalancedTerm[];
+  balanced: true;
+}
+
+interface BalancedTerm {
+  formula: string;
+  coefficient: number;
+}
+```
+
+The `equation` property contains the formatted balanced equation.
+
+The `coefficients` property contains all stoichiometric coefficients in reaction order: first reactants, then products.
+
+The `reactants` and `products` properties contain the individual reaction terms and their coefficients.
+
+The `balanced` property is always `true` for a successfully returned result.
+
+For example:
+
+```js
+balance( 'H2 + O2 -> H2O' );
+// {
+//   equation: '2 H2 + O2 -> 2 H2O',
+//   coefficients: [ 2, 1, 2 ],
+//   reactants: [
+//     { formula: 'H2', coefficient: 2 },
+//     { formula: 'O2', coefficient: 1 }
+//   ],
+//   products: [
+//     { formula: 'H2O', coefficient: 2 }
+//   ],
+//   balanced: true
+// }
+```
+
+`parse()` returns a `ChemicalEquation` object:
+
+```ts
+interface ChemicalEquation {
+  reactants: EquationTerm[];
+  products: EquationTerm[];
+}
+
+interface EquationTerm {
+  formula: string;
+  coefficient: number;
+  composition: ChemParseResult;
+  auxiliary?: boolean;
+}
+```
+
+The `composition` property contains the parsed element counts, particle counts,
+and optional total ionic charge.
+
+The optional `auxiliary` property is used internally to identify automatically introduced
+reaction species. It is not present in ordinary parsed equations.
