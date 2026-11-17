@@ -423,3 +423,30 @@ Examples include:
 `isBalanced()` throws an error for syntactically invalid equations.
 
 `validate()` can be used when a boolean result is preferred over exception handling.
+
+
+## TypeScript
+
+ChemBalance includes declaration files and exports its public types:
+
+```ts
+import type {
+  BalanceOptions, BalanceResult, BalancedTerm, ChemicalEquation,
+  EquationTerm, ReactionMedium, SearchProfile
+} from 'chembalance';
+
+import ChemBalance, { balance, isBalanced, parse, validate } from 'chembalance';
+
+const options: BalanceOptions = { medium: 'acidic', search: 'balanced' };
+const result: BalanceResult = balance( 'MnO4^- + Fe^2+ -> Mn^2+ + Fe^3+', options );
+
+const equation: ChemicalEquation = parse( 'H2 + O2 -> H2O' );
+const terms: BalancedTerm[] = result.reactants;
+const reactants: EquationTerm[] = equation.reactants;
+
+const medium: ReactionMedium = 'basic';
+const profile: SearchProfile = 'thorough';
+
+console.log( ChemBalance.isBalanced( result.equation ) );
+console.log( validate( 'H2 + O2 -> H2O' ) );
+```
