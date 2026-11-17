@@ -379,3 +379,21 @@ and optional total ionic charge.
 
 The optional `auxiliary` property is used internally to identify automatically introduced
 reaction species. It is not present in ordinary parsed equations.
+
+
+## Balancing Scope and Limitations
+
+ChemBalance balances chemical reaction equations by solving homogeneous systems of linear equations.
+
+Some limitations of the current implementation:
+
+- Only positive integer stoichiometric coefficients are supported.
+- Stoichiometric coefficients must be safe JavaScript integers.
+- Electrons are supported as reaction terms; other particles are not.
+- Automatically introduced auxiliary species are only available when an acidic or
+  basic reaction medium is selected.
+- Existing coefficients are recalculated by `balance()`.
+- Multi-dimensional solution spaces require a bounded integer search.
+  Complex equations may exceed the selected search limits.
+- The library balances elemental composition and total ionic charge. It does not
+  determine whether a reaction is chemically feasible or physically meaningful.
