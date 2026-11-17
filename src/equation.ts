@@ -9,7 +9,7 @@ const ARROW_REGEX = /->|→/g;
 const TERM_SEPARATOR_REGEX = /(?<=\s)\+(?=\s)/;
 
 /** Matches an optional leading stoichiometric coefficient. */
-const COEFFICIENT_REGEX = /^(\d+)\s*(\S.*)$/;
+const COEFFICIENT_REGEX = /^(\d+)\s*(\S[\s\S]*)$/;
 
 
 /**
