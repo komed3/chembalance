@@ -450,3 +450,9 @@ const profile: SearchProfile = 'thorough';
 console.log( ChemBalance.isBalanced( result.equation ) );
 console.log( validate( 'H2 + O2 -> H2O' ) );
 ```
+
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.  
+© Copyright 2026 Paul Köhler (komed3).
