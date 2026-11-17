@@ -397,3 +397,29 @@ Some limitations of the current implementation:
   Complex equations may exceed the selected search limits.
 - The library balances elemental composition and total ionic charge. It does not
   determine whether a reaction is chemically feasible or physically meaningful.
+
+
+## Error Handling
+
+`balance()` and `parse()` throw an error when the input equation or its reaction terms are invalid.
+
+Examples include:
+
+- Empty or incomplete equations
+- Missing or multiple reaction arrows
+- Empty reaction terms
+- Invalid chemical formulas
+- Invalid or non-positive stoichiometric coefficients
+- Unsupported particle types
+- Non-integer or unsafe element counts
+- Invalid reaction media or search profiles
+
+`balance()` may also throw an error when:
+
+- No positive integer balancing solution exists
+- The search limit is exceeded
+- A balancing coefficient exceeds the safe integer range
+
+`isBalanced()` throws an error for syntactically invalid equations.
+
+`validate()` can be used when a boolean result is preferred over exception handling.
