@@ -167,6 +167,7 @@ test( 'isBalanced', async t => {
 test( 'validate', async t => {
   await t.test( 'accepts syntactically valid equations', () => {
     assert.equal( validate( 'H2 + O2 -> H2O' ), true );
+    assert.equal( validate( '3C + 2O2 -> 2CO + CO2' ), true );
     assert.equal( validate( '4 Fe + 3 O2 -> 2 Fe2O3' ), true );
     assert.equal( validate( 'H^+ + Cl^- -> HCl' ), true );
   } );
