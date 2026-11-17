@@ -175,3 +175,112 @@ parse( '2 H2 + O2 -> 2 H2O' );
 The `composition` property contains the result returned by `ChemParse.parse()`.
 
 Throws a `TypeError` if the input is not a string and an `Error` if the equation or any reaction term is invalid.
+
+
+## Supported Reaction Syntax
+
+### Basic equations
+
+A reaction equation consists of reactants, a reaction arrow, and products.
+
+```text
+H2 + O2 -> H2O
+CH4 + O2 -> CO2 + H2O
+Fe + O2 -> Fe2O3
+Na + Cl2 -> NaCl
+```
+
+The reaction arrow can be written as `->` or `→`.
+
+Exactly one reaction arrow is required. Both sides must contain at least one reaction term.
+
+Reaction terms must be separated by a plus sign with whitespace on both sides.
+
+### Stoichiometric coefficients
+
+Positive integer coefficients can be placed before reaction formulas.
+
+```text
+2 H2 + O2 -> 2 H2O
+4 Fe + 3 O2 -> 2 Fe2O3
+2 Na + Cl2 -> 2 NaCl
+```
+
+Whitespace between a coefficient and its formula is optional.
+
+Coefficients must be positive safe integers. Existing coefficients are taken into account
+by `isBalanced()` and `parse()`, but recalculated by `balance()`.
+
+A coefficient of `1` is omitted from the formatted balanced equation.
+
+### Chemical formulas
+
+ChemBalance delegates chemical formula parsing to [ChemParse](https://npmjs.com/package/chemparse).
+
+All supported ChemParse formula syntax is available, including:
+
+- All 118 IUPAC element symbols
+- Parentheses, square brackets, and curly brackets
+- Nested groups and multipliers
+- Decimal and scientific notation
+- Hydrate notation
+- Ionic charges in caret and Unicode superscript notation
+
+Examples:
+
+```text
+Ca(OH)2 + HCl -> CaCl2 + H2O
+Al2(SO4)3 + NaOH -> Al(OH)3 + Na2SO4
+NH4^+ + OH^- -> NH3 + H2O
+Fe(CN)6^3- + Fe^3+ -> Fe4[Fe(CN)6]3
+```
+
+For further details about supported formula syntax, see the [ChemParse documentation](https://github.com/komed3/chemparse).
+
+### Ionic charges and electrons
+
+Ionic charges are included in the balancing calculations.
+
+```text
+Fe^2+ + e- -> Fe
+Cu^2+ + Zn -> Cu + Zn^2+
+Ag^+ + Cl^- -> AgCl
+```
+
+Electrons are supported as standalone reaction terms. Their particle counts and charges are
+taken into account when constructing the stoichiometric matrix.
+
+ChemBalance currently supports electrons as the only particle type in reaction equations.
+Other particle expressions recognized by ChemParse are not supported as reaction terms.
+
+### Redox reactions
+
+Redox reactions can be balanced by including electrons and ionic charges in the equation.
+
+For reactions in acidic or basic media, the corresponding reaction medium can be supplied through the `medium` option.
+
+Acidic medium:
+
+```js
+balance( 'MnO4^- + Fe^2+ -> Mn^2+ + Fe^3+', { medium: 'acidic' } );
+// MnO4^- + 5 Fe^2+ + 8 H^+ -> Mn^2+ + 5 Fe^3+ + 4 H2O
+```
+
+Basic medium:
+
+```js
+balance( 'MnO4^- + SO3^2- -> MnO2 + SO4^2-', { medium: 'basic' } );
+// 2 MnO4^- + 3 SO3^2- + H2O -> 2 MnO2 + 3 SO4^2- + 2 OH^-
+```
+
+The auxiliary species are introduced automatically. ChemBalance determines their placement
+on the reactant or product side as part of the balancing process.
+
+The `medium` option accepts:
+
+| Value | Auxiliary species |
+|---|---|
+| `acidic` | H2O, H+, e- |
+| `basic` | H2O, OH-, e- |
+
+When no reaction medium is specified, no auxiliary species are introduced automatically.
