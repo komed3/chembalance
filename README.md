@@ -80,3 +80,98 @@ ChemBalance can also be used in browser environments through an ESM CDN import:
 ```
 
 The package provides ESM and CommonJS builds. It does not include a separate UMD build.
+
+
+## API
+
+All functions are available as named exports and as static methods of the default `ChemBalance` class.
+
+### `balance ( equation: string, options?: BalanceOptions ) : BalanceResult`
+
+Balances a chemical reaction equation and returns the balanced equation together with
+its coefficients and individual reaction terms.
+
+Existing stoichiometric coefficients are recalculated.
+
+```js
+balance( 'H2 + O2 -> H2O' );
+// {
+//   equation: '2 H2 + O2 -> 2 H2O',
+//   coefficients: [ 2, 1, 2 ],
+//   reactants: [
+//     { formula: 'H2', coefficient: 2 },
+//     { formula: 'O2', coefficient: 1 }
+//   ],
+//   products: [
+//     { formula: 'H2O', coefficient: 2 }
+//   ],
+//   balanced: true
+// }
+```
+
+The optional `options` parameter accepts a reaction medium and a search profile.
+
+```js
+balance( 'MnO4^- + Fe^2+ -> Mn^2+ + Fe^3+', { medium: 'acidic' } );
+//  MnO4^- + 5 Fe^2+ + 8 H^+ -> Mn^2+ + 5 Fe^3+ + 4 H2O
+```
+
+The reaction medium can be set to `acidic` or `basic`.
+ChemBalance introduces the required auxiliary species automatically.
+
+The search profile controls the amount of computational effort used when finding a positive integer solution.
+Available profiles are `fast`, `balanced`, and `thorough`. The default is `balanced`.
+
+Throws an error if the equation is invalid, no positive balancing solution exists, or a search limit is exceeded.
+
+### `isBalanced ( equation: string ) : boolean`
+
+Checks whether a chemical reaction equation is balanced.
+
+Existing stoichiometric coefficients are taken into account.
+Both elemental composition and total ionic charge are considered.
+
+```js
+isBalanced( '2 H2 + O2 -> 2 H2O' ); // true
+isBalanced( 'H2 + O2 -> H2O' ); // false
+isBalanced( 'Fe^2+ -> Fe^3+' ); // false
+isBalanced( '2 Fe^2+ -> 2 Fe^2+' ); // true
+```
+
+Throws an error if the equation is syntactically invalid.
+
+### `validate ( equation: string ) : boolean`
+
+Checks whether a chemical reaction equation is syntactically valid and all reaction formulas can be parsed.
+
+```js
+validate( 'H2 + O2 -> H2O' ); // true
+validate( 'Fe^2+ + e- -> Fe' ); // true
+validate( 'H2 + O2' ); // false
+validate( 'Xx2 -> H2O' ); // false
+```
+
+Returns `false` for invalid input instead of throwing an error.
+
+### `parse ( equation: string ) : ChemicalEquation`
+
+Parses a chemical reaction equation and returns its reactants and products as structured data.
+
+Each reaction term contains its formula, stoichiometric coefficient, and parsed chemical composition.
+
+```js
+parse( '2 H2 + O2 -> 2 H2O' );
+// {
+//   reactants: [
+//     { formula: 'H2', coefficient: 2, composition: { elementCounts: { H: 2 } } },
+//     { formula: 'O2', coefficient: 1, composition: { elementCounts: { O: 2 } } }
+//   ],
+//   products: [
+//     { formula: 'H2O', coefficient: 2, composition: { elementCounts: { H: 2, O: 1 } } }
+//   ]
+// }
+```
+
+The `composition` property contains the result returned by `ChemParse.parse()`.
+
+Throws a `TypeError` if the input is not a string and an `Error` if the equation or any reaction term is invalid.
