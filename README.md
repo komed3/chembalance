@@ -284,3 +284,30 @@ The `medium` option accepts:
 | `basic` | H2O, OH-, e- |
 
 When no reaction medium is specified, no auxiliary species are introduced automatically.
+
+
+## Search Profiles
+
+Balancing equations with a single free variable can be solved directly.
+Equations with multi-dimensional solution spaces require a search for a positive integer solution.
+
+The `search` option controls the computational limits of this search.
+
+| Profile | Maximum search nodes | Maximum coefficient sum |
+|---|---:|---:|
+| `fast` | 2,000 | 1,000 |
+| `balanced` | 100,000 | 5,000 |
+| `thorough` | 2,000,000 | 10,000 |
+
+The default profile is `balanced`.
+
+```js
+balance( 'C + O2 -> CO + CO2', { search: 'fast' } );
+balance( 'C + O2 -> CO + CO2', { search: 'balanced' } );
+balance( 'C + O2 -> CO + CO2', { search: 'thorough' } );
+```
+
+Higher profiles allow more complex searches but may require significantly more computation.
+
+A search limit error indicates that no solution was found within the configured limits.
+It does not necessarily mean that no positive integer solution exists.
